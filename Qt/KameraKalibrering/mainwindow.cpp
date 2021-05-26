@@ -48,7 +48,6 @@ void MainWindow::on_Analyse_clicked()
     analyse.exec();
 }
 
-
 void MainWindow::on_cameraButton_clicked()
 {
     if(!camera)
@@ -131,11 +130,18 @@ void MainWindow::on_cameraButton_clicked()
 
 }
 
-
-
 void MainWindow::on_robotButton_clicked()
 {
-    RTDEReceiveInterface rtde_receive("198.168.250.1");
-    std::vector<double> joint_positions = rtde_receive.getActualQ();
-}
+    string hostname = "192.168.250.1";
+    RTDEControlInterface rtde_control(hostname);
+    RTDEReceiveInterface rtde_receive(hostname);
 
+    vector<double> joint_positions = rtde_receive.getActualQ();
+    for (size_t i = 0; i < joint_positions.size(); i++)
+    {
+        qDebug() << joint_positions.at(i) << " ";
+    }
+    joint_positions.at(0)=joint_positions.at(0)+0.5;
+
+    rtde_control.moveJ(joint_positions);
+}

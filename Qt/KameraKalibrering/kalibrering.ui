@@ -49,6 +49,19 @@
     <string>Færdig</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>170</y>
+     <width>131</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Slet kalibrering</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

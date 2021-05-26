@@ -19,10 +19,14 @@ class Kalibrering : public QDialog
 public:
     explicit Kalibrering(QWidget *parent = nullptr);
     ~Kalibrering();
+    void removeKalib();
+
 private slots:
     void on_ny_kalibrering_clicked();
 
     void on_annuller_clicked();
+
+    void on_pushButton_clicked();
 
 private:
     Ui::Kalibrering *ui;
