@@ -2,14 +2,17 @@
 #define NYKALIBRERING_H
 
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <bits/stdc++.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <filesystem>
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
+#include <boost/filesystem.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -46,6 +49,8 @@ private slots:
     void on_brug_vs_clicked();
 
     void on_kalibrere_clicked();
+
+    void on_annuller_clicked();
 
 private:
     Ui::NyKalibrering *ui;

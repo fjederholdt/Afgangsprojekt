@@ -26,11 +26,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::setValg(QString valgte)
-{
-    valg=valgte;
-}
-
 void MainWindow::on_Kalibrering_clicked()
 {
     Kalibrering kalibrering;
@@ -41,21 +36,10 @@ void MainWindow::on_Kalibrering_clicked()
 
 void MainWindow::on_Analyse_clicked()
 {
-    QMessageBox msg;
-    msg.setText("Ingen kalibrering valgt, tryk på {Kalibrering} for at vælge kalibrering");
     Analyse analyse;
-    analyse.setValg(valg);
-    msg.setText(valg);
     analyse.setModal(true);
     analyse.setWindowTitle("Analyse");
-    if(analyse.getValg().isEmpty())
-    {
-        msg.exec();
-    }
-    else
-    {
-        analyse.exec();
-    }
+    analyse.exec();
 }
 
 

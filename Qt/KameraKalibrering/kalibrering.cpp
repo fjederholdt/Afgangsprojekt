@@ -2,10 +2,7 @@
 #include "ui_kalibrering.h"
 #include "nykalibrering.h"
 #include "mainwindow.h"
-#include <filesystem>
-#include <string>
-#include <vector>
-#include <time.h>
+
 
 using namespace std::filesystem;
 
@@ -48,13 +45,27 @@ void Kalibrering::on_ny_kalibrering_clicked()
     nyKalibrering.setModal(true);
     nyKalibrering.setWindowTitle(QString::fromStdString("Kalibrering: "+ localTime));
     nyKalibrering.exec();
+
+    std::vector<std::string> pathVector;
+    std::string sub, suffix;
+    for(const auto & entry : directory_iterator(path))
+    {
+        sub = entry.path();
+        std::size_t found = sub.find_last_of("/");
+        sub = sub.substr(found+1,sub.size());
+        pathVector.push_back(sub);
+    }
+    ui->listWidget->clear();
+    for (size_t i = 0; i < pathVector.size(); i++)
+    {
+        QListWidgetItem *item = new QListWidgetItem;
+        item->setText(QString::fromStdString(pathVector.at(i)));
+        ui->listWidget->addItem(item);
+    }
 }
 
-void Kalibrering::on_valg_kalibrering_clicked()
+void Kalibrering::on_annuller_clicked()
 {
-    QListWidgetItem *item =ui->listWidget->currentItem();
-
-    MainWindow::setValg(QString::fromStdString(path)+item->text());
     Kalibrering::close();
 }
 

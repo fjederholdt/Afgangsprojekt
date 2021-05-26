@@ -3,6 +3,10 @@
 
 #include <QDialog>
 #include <QMessageBox>
+#include <filesystem>
+#include <string>
+#include <vector>
+#include <time.h>
 
 namespace Ui {
 class Kalibrering;
@@ -18,7 +22,7 @@ public:
 private slots:
     void on_ny_kalibrering_clicked();
 
-    void on_valg_kalibrering_clicked();
+    void on_annuller_clicked();
 
 private:
     Ui::Kalibrering *ui;

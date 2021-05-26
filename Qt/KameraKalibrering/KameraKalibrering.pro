@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     analyse.cpp \
+    dhparams.cpp \
     fsclass.cpp \
     kalibrering.cpp \
     main.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     analyse.h \
+    dhparams.h \
     fsclass.h \
     kalibrering.h \
     mainwindow.h \
@@ -40,5 +42,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 INCLUDEPATH += -I/usr/local/include/opencv2
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc
+LIBS += -L/usr/local/lib -lboost_filesystem -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc
 

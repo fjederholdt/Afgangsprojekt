@@ -2,7 +2,16 @@
 #define ANALYSE_H
 
 #include <QDialog>
+#include <QDebug>
+#include <QMessageBox>
+#include <QApplication>
+#include <QHeaderView>
+#include <QFormLayout>
+#include <filesystem>
+#include <iostream>
 #include <string>
+#include <vector>
+#include <time.h>
 
 namespace Ui {
 class Analyse;
@@ -15,11 +24,16 @@ class Analyse : public QDialog
 public:
     explicit Analyse(QWidget *parent = nullptr);
     ~Analyse();
-    void setValg(const QString &path);
-    QString getValg();
+private slots:
+    void on_anvend_valgte_kalibrering_clicked();
+
+    void on_test_kalibrering_clicked();
+
+    void on_visualiser_clicked();
+
 private:
-    QString valgteKalib;
     Ui::Analyse *ui;
+    std::string path;
 };
 
 #endif // ANALYSE_H

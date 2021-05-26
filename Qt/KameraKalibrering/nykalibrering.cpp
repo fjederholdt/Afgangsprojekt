@@ -1,6 +1,7 @@
 #include "nykalibrering.h"
 #include "ui_nykalibrering.h"
 #include "kalibrering.h"
+#include "dhparams.h"
 
 using namespace std::filesystem;
 using namespace std;
@@ -18,15 +19,15 @@ NyKalibrering::NyKalibrering(QWidget *parent) :
     time_t rawtime;
     time(&rawtime);
     localTime = asctime(localtime(&rawtime));
+    localTime.pop_back();
     path = "/home/jeppe/Qt-workspace/KameraKalibrering/Kalibreringer/"+localTime;
-    path.pop_back();
     mode_t mode = 0755;
     char *copypath = strdup(path.c_str());
     if(mkdir(copypath, mode) != 0 && errno != EEXIST)
     {
         std::cerr << "Error : " << strerror(errno) << std::endl;
     }
-    cam.open(0,CAP_ANY);
+
     /*std::vector<std::string> pathVector;
     std::string sub, suffix;
     for(const auto & entry : directory_iterator(path))
@@ -69,6 +70,7 @@ void NyKalibrering::removeList()
 
 void NyKalibrering::on_tag_billede_clicked()
 {
+    cam.open(0,CAP_ANY);
     if(!cam.isOpened())
         std::cout << "no camera" << std::endl;
     Mat cam_img, save_img;
@@ -87,6 +89,23 @@ void NyKalibrering::on_tag_billede_clicked()
     cvtColor(cam_img, save_img, COLOR_RGB2GRAY);
     imwrite(path+"/"+to_string(image_nr)+".png", save_img);
     addList(to_string(image_nr)+".png");
+    /*#############################3
+     * Make receive kode for robot poses
+     * RTDEReceiveInterfaec rtde_receive(192.168.250.1);
+     * std::vector<double> joint_positions = rtde_receive.getActualQ();
+     * or
+     * std:vector<double> cartesian_coords = rtde_receive.getActualTCPPose();
+     * And link pose with picture
+     * std::ofstream output_file;
+     * output_file.open(path+"/"+localTime+".csv");
+     * output_file << to_string(image_nr)+".png, robot:,";
+     * std::ostream_iterator<std::string> output_iterator(output_file, ", ");
+     * std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
+     * or
+     * std::ostream_iterator<std::string> output_iterator(output_file, ", ");
+     * std::copy(cartesian_coords.begin(), cartesian_coords.end(), output_iterator);
+     * output_file << "\n";
+     */
     image_nr++;
 }
 
@@ -210,13 +229,42 @@ vector<Mat> getImages(vector<string> paths){
 
 void NyKalibrering::on_kalibrere_clicked()
 {
-    ui->listWidget->selectAll();
+    /*ui->listWidget->selectAll();
 
     vector<std::string> pathVector;
 
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
     for(int i = 0; i < items.size(); i++)
-       pathVector.push_back(path+"/"+items.at(i)->text().toStdString());
+    {
+        pathVector.push_back(path+"/"+items.at(i)->text().toStdString());
+    }
+
+    fstream fin;
+    fin.open(path+"/"+localTime+".csv", ios::in);
+    vector<string> row;
+    string line, word;
+    vector<vector<long double>> robotPoses;
+    while (robotPoses.size() < pathVector.size())
+    {
+        row.clear();
+        vector<long double> pose;
+        getline(fin, line);
+        stringstream s(line);
+        int rowlength = 0;
+        while(getline(s, word, ',')){
+            if(word.find(".png") == std::string::npos || word.find("robot:") == std::string::npos)
+            {
+                row.push_back(word);
+                rowlength++;
+            }
+            else
+                continue;
+        }
+        for	(int i=0; i<rowlength; i++){
+            pose.push_back(stold(row.at(i)));
+        }
+        robotPoses.push_back(pose);
+    }
 
     vector<Mat> images = getImages(pathVector);
 
@@ -238,31 +286,40 @@ void NyKalibrering::on_kalibrere_clicked()
 
     findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
-    fstream fin;
-    fin.open("/home/jeppe/Hentet/charuco/calib/robot_poses.csv", ios::in);
-    vector<string> row;
-    string line, word;
-    vector<vector<long double>> robotPoses;
-    while (robotPoses.size() < 54)
-    {
-        row.clear();
-        vector<long double> poses;
-        getline(fin, line);
-        stringstream s(line);
-        int rowlength =0;
-        while(getline(s, word, ',')){
-            row.push_back(word);
-            rowlength++;
-        }
-        for	(int i=0; i<rowlength; i++){
-            poses.push_back(stold(row.at(i)));
-        }
-        robotPoses.push_back(poses);
-    }
     vector<Mat> rmVec;
     vector<Mat> tmVec;
+    for (size_t i = 0; i < robotPoses.size(); i++)
+    {
+        DHParams dhp(robotPoses.at(i));
+        dhp.calculateDH();
+        rmVec.push_back(dhp.getRM());
+        tmVec.push_back(dhp.getTM());
+    }
+
     Mat cam2GripRM, cam2GripTM;
     calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
     fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
+*/
+    QMessageBox msg;
+    msg.setText("Kalibrering er færdig");
+    int retur = msg.exec();
+
+    if(retur == QMessageBox::Ok)
+        NyKalibrering::close();
+}
+
+void NyKalibrering::on_annuller_clicked()
+{
+    QMessageBox msg;
+    msg.setText(QString::fromStdString("ADVARSEL: Sletter mappe: Kalibreringer/"+localTime));
+    msg.setInformativeText("Vil du fortsætte?");
+    msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    int retur = msg.exec();
+
+    if(retur == QMessageBox::Ok)
+    {
+        boost::filesystem::remove_all(path);
+        NyKalibrering::close();
+    }
 }
 
