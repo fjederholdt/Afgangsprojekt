@@ -9,8 +9,14 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <ur_rtde/rtde.h>
+#include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
+
 using namespace cv;
 using namespace std;
+using namespace ur_rtde;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -125,4 +131,11 @@ void MainWindow::on_cameraButton_clicked()
 
 }
 
+
+
+void MainWindow::on_robotButton_clicked()
+{
+    RTDEReceiveInterface rtde_receive("198.168.250.1");
+    std::vector<double> joint_positions = rtde_receive.getActualQ();
+}
 

@@ -13,7 +13,7 @@ Kalibrering::Kalibrering(QWidget *parent) :
     ui->setupUi(this);
     std::vector<std::string> pathVector;
     std::string sub, suffix;
-    path = "/home/jeppe/Qt-workspace/KameraKalibrering/Kalibreringer/";
+    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
     for(const auto & entry : directory_iterator(path))
     {
         sub = entry.path();

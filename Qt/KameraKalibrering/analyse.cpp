@@ -16,7 +16,7 @@ Analyse::Analyse(QWidget *parent) :
     ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setShowGrid(false);
-    path = "/home/jeppe/Qt-workspace/KameraKalibrering/Kalibreringer/";
+    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
     std::vector<std::string> pathVector;
     std::string sub, suffix;
     int maxCols = 3;

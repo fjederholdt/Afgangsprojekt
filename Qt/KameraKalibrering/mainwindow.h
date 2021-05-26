@@ -29,6 +29,8 @@ private slots:
 
     void on_cameraButton_clicked();
 
+    void on_robotButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QPixmap pix;

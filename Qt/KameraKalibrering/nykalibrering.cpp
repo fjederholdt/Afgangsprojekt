@@ -20,7 +20,7 @@ NyKalibrering::NyKalibrering(QWidget *parent) :
     time(&rawtime);
     localTime = asctime(localtime(&rawtime));
     localTime.pop_back();
-    path = "/home/jeppe/Qt-workspace/KameraKalibrering/Kalibreringer/"+localTime;
+    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/"+localTime;
     mode_t mode = 0755;
     char *copypath = strdup(path.c_str());
     if(mkdir(copypath, mode) != 0 && errno != EEXIST)
