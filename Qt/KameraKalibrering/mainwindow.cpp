@@ -24,6 +24,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->camera_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
+    ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
+    QFileDialog *folder = new QFileDialog;
+    folder->setFileMode(QFileDialog::Directory);
+    folder->setOption(QFileDialog::ShowDirsOnly);
+    folder->setWindowTitle("Vælg mappe for Kalibrering");
+    int result = folder->exec();
+    if(result)
+    {
+        path = folder->selectedFiles().at(0);
+    }
+    //dialog = QInputDialog::getText(this, tr("Indsæt sti til Afgangsprojekt mappen"),tr("sti: (uden /Afgangprojekt..)"), QLineEdit::Normal,"", &ok);
+    //path = "/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
+    //qDebug() << path;
     //connect(ui->cameraButton, &QPushButton::clicked, this, &MainWindow::onOpenGL);
 }
 
@@ -34,10 +47,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_Kalibrering_clicked()
 {
-    Kalibrering kalibrering;
-    kalibrering.setModal(true);
-    kalibrering.setWindowTitle("Kalibrering");
-    kalibrering.exec();
+    Kalibrering *kalibrering = new Kalibrering(this);
+    //
+    kalibrering->setWindowTitle("Kalibrering");
+    kalibrering->setPath(path+"/");
+    kalibrering->exec();
 }
 
 void MainWindow::on_Analyse_clicked()
@@ -45,6 +59,8 @@ void MainWindow::on_Analyse_clicked()
     Analyse analyse;
     analyse.setModal(true);
     analyse.setWindowTitle("Analyse");
+    std::string p = path.toStdString()+"/";
+    analyse.setPath(p);
     analyse.exec();
 }
 

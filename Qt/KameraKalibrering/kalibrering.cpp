@@ -11,10 +11,19 @@ Kalibrering::Kalibrering(QWidget *parent) :
     ui(new Ui::Kalibrering)
 {
     ui->setupUi(this);
+}
+
+Kalibrering::~Kalibrering()
+{
+    delete ui;
+}
+
+void Kalibrering::setPath(const QString &mainPath)
+{
+    this->folderpath = mainPath.toStdString();
     std::vector<std::string> pathVector;
     std::string sub, suffix;
-    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
-    for(const auto & entry : directory_iterator(path))
+    for(const auto & entry : directory_iterator(folderpath))
     {
         sub = entry.path();
         std::size_t found = sub.find_last_of("/");
@@ -27,12 +36,6 @@ Kalibrering::Kalibrering(QWidget *parent) :
         item->setText(QString::fromStdString(pathVector.at(i)));
         ui->listWidget->addItem(item);
     }
-
-}
-
-Kalibrering::~Kalibrering()
-{
-    delete ui;
 }
 
 void Kalibrering::on_ny_kalibrering_clicked()
@@ -44,11 +47,13 @@ void Kalibrering::on_ny_kalibrering_clicked()
     NyKalibrering nyKalibrering;
     nyKalibrering.setModal(true);
     nyKalibrering.setWindowTitle(QString::fromStdString("Kalibrering: "+ localTime));
+    nyKalibrering.setPath(folderpath);
     nyKalibrering.exec();
 
+    //efter nyKalibrering er lukket
     std::vector<std::string> pathVector;
     std::string sub, suffix;
-    for(const auto & entry : directory_iterator(path))
+    for(const auto & entry : directory_iterator(folderpath))
     {
         sub = entry.path();
         std::size_t found = sub.find_last_of("/");
@@ -76,12 +81,12 @@ void Kalibrering::removeKalib()
         delete ui->listWidget->takeItem(ui->listWidget->row(item));
 }
 
-void Kalibrering::on_pushButton_clicked()
+void Kalibrering::on_slet_kalibrering_clicked()
 {
     vector<std::string> pathVector;
        QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
        for(int i = 0; i < items.size(); i++)
-          pathVector.push_back(path+"/"+items.at(i)->text().toStdString());
+          pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
        for(size_t i = 0; i < pathVector.size(); i++)
        {
            boost::filesystem::remove_all(pathVector.at(i));

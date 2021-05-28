@@ -20,17 +20,19 @@ public:
     explicit Kalibrering(QWidget *parent = nullptr);
     ~Kalibrering();
     void removeKalib();
+    void setPath(const QString &mainPath);
+    QString getPath();
 
 private slots:
     void on_ny_kalibrering_clicked();
 
     void on_annuller_clicked();
 
-    void on_pushButton_clicked();
+    void on_slet_kalibrering_clicked();
 
 private:
     Ui::Kalibrering *ui;
-    std::string path;
+    std::string folderpath;
 };
 
 #endif // KALIBRERING_H

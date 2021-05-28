@@ -41,6 +41,6 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-INCLUDEPATH += -I/usr/local/include/opencv2
-LIBS += -L/usr/local/lib -lboost_filesystem -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lrtde
+INCLUDEPATH += -I/usr/local/include/opencv2 -I/opt/pylon/include
+LIBS += -L/usr/local/lib -L/opt/pylon/lib -lpylonbase-6.1.1 -lboost_filesystem -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lrtde
 

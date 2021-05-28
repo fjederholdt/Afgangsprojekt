@@ -8,6 +8,16 @@ Analyse::Analyse(QWidget *parent) :
     ui(new Ui::Analyse)
 {
     ui->setupUi(this);
+}
+
+Analyse::~Analyse()
+{
+    delete ui;
+}
+
+void Analyse::setPath(std::string &mainPath)
+{
+    this->path = mainPath;
     ui->tableWidget->setColumnCount(3);
     QStringList tableHeader;
     tableHeader << "Dato" << "Antal Billeder" << "Rep Error";
@@ -16,7 +26,7 @@ Analyse::Analyse(QWidget *parent) :
     ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setShowGrid(false);
-    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
+    //path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
     std::vector<std::string> pathVector;
     std::string sub, suffix;
     int maxCols = 3;
@@ -74,11 +84,6 @@ Analyse::Analyse(QWidget *parent) :
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-}
-
-Analyse::~Analyse()
-{
-    delete ui;
 }
 
 void Analyse::on_anvend_valgte_kalibrering_clicked()
@@ -140,3 +145,9 @@ void Analyse::on_visualiser_clicked()
         msg.exec();
     }
 }
+
+void Analyse::on_annuller_clicked()
+{
+    Analyse::close();
+}
+

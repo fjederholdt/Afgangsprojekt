@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QDebug>
 #include <bits/stdc++.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -38,6 +39,7 @@ public:
     ~NyKalibrering();
     void addList(std::string strItem);
     void removeList();
+    void setPath(std::string &kalibpath);
 
 private slots:
     void on_tag_billede_clicked();

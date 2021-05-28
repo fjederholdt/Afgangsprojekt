@@ -24,12 +24,16 @@ class Analyse : public QDialog
 public:
     explicit Analyse(QWidget *parent = nullptr);
     ~Analyse();
+    void setPath(std::string &mainPath);
+
 private slots:
     void on_anvend_valgte_kalibrering_clicked();
 
     void on_test_kalibrering_clicked();
 
     void on_visualiser_clicked();
+
+    void on_annuller_clicked();
 
 private:
     Ui::Analyse *ui;

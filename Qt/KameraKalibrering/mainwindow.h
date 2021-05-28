@@ -5,6 +5,8 @@
 #include <QtGui>
 #include <QWidget>
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,9 +21,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    static void setValg(QString valgte);
-    QString getValg();
-    static QString valg;
+
 private slots:
     void on_Kalibrering_clicked();
 
@@ -34,6 +34,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QPixmap pix;
+    QString path;
 
 };
 #endif // MAINWINDOW_H

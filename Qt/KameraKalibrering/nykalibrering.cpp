@@ -16,42 +16,26 @@ NyKalibrering::NyKalibrering(QWidget *parent) :
     ui(new Ui::NyKalibrering)
 {
     ui->setupUi(this);
+}
+
+NyKalibrering::~NyKalibrering()
+{
+    delete ui;
+}
+
+void NyKalibrering::setPath(std::string &kalibpath)
+{
     time_t rawtime;
     time(&rawtime);
     localTime = asctime(localtime(&rawtime));
     localTime.pop_back();
-    path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/"+localTime;
+    this->path = kalibpath+localTime;
     mode_t mode = 0755;
     char *copypath = strdup(path.c_str());
     if(mkdir(copypath, mode) != 0 && errno != EEXIST)
     {
         std::cerr << "Error : " << strerror(errno) << std::endl;
     }
-
-    /*std::vector<std::string> pathVector;
-    std::string sub, suffix;
-    for(const auto & entry : directory_iterator(path))
-    {
-        sub = entry.path();
-        std::size_t found = sub.find_last_of("/");
-        sub = sub.substr(found+1,sub.size());
-        std::size_t suffixFound = sub.find_last_of(".");
-        suffix = sub.substr(suffixFound,sub.size());
-        if(suffix == ".png" || suffix == ".jpg" || suffix == ".jpeg" )
-            pathVector.push_back(sub);
-    }
-    for (size_t i = 0; i < pathVector.size(); i++)
-    {
-        QListWidgetItem *item = new QListWidgetItem;
-        item->setText(QString::fromStdString(pathVector.at(i)));
-        item->setCheckState(Qt::Unchecked);
-        ui->listWidget->addItem(item);
-    }*/
-}
-
-NyKalibrering::~NyKalibrering()
-{
-    delete ui;
 }
 
 void NyKalibrering::addList(std::string strItem)
@@ -147,8 +131,6 @@ double findArucoMarkers(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs,
     Size imageSize = Size(images.at(0).rows, images.at(0).cols);
     Mat boardImage;
     board->draw(Size(600, 400), boardImage, 1, 1);
-    //imshow("Board Image", boardImage);
-    //waitKey(0);
 
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
@@ -170,13 +152,10 @@ double findArucoMarkers(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs,
                 if (valid)
                 {
                     aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
-                    //imshow("charuco", inputImage);
                     Rodrigues(rvec, rMat);
                     Rodrigues(tvec, tMat);
                     rvectors.push_back(rMat);
                     tvectors.push_back(tMat);
-                    //cout << "rvec: " << endl << rvec << endl << "tvec: " << endl << tvec << endl;
-                    //waitKey(0);
                 }
             }
         }
@@ -203,8 +182,6 @@ void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoef
     {
         view = *iter;
         remap(view, rview, map1, map2, INTER_LINEAR);
-        //imshow("Remapped Image", rview);
-        //waitKey(0);
     }
 }
 
@@ -229,7 +206,7 @@ vector<Mat> getImages(vector<string> paths){
 
 void NyKalibrering::on_kalibrere_clicked()
 {
-    /*ui->listWidget->selectAll();
+    ui->listWidget->selectAll();
 
     vector<std::string> pathVector;
 
@@ -299,7 +276,7 @@ void NyKalibrering::on_kalibrere_clicked()
     Mat cam2GripRM, cam2GripTM;
     calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
     fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
-*/
+
     QMessageBox msg;
     msg.setText("Kalibrering er færdig");
     int retur = msg.exec();

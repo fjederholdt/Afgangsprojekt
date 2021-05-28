@@ -23,7 +23,7 @@ public:
     QPushButton *ny_kalibrering;
     QListWidget *listWidget;
     QPushButton *annuller;
-    QPushButton *pushButton;
+    QPushButton *slet_kalibrering;
 
     void setupUi(QDialog *Kalibrering)
     {
@@ -39,9 +39,9 @@ public:
         annuller = new QPushButton(Kalibrering);
         annuller->setObjectName(QString::fromUtf8("annuller"));
         annuller->setGeometry(QRect(340, 260, 121, 61));
-        pushButton = new QPushButton(Kalibrering);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(340, 170, 131, 51));
+        slet_kalibrering = new QPushButton(Kalibrering);
+        slet_kalibrering->setObjectName(QString::fromUtf8("slet_kalibrering"));
+        slet_kalibrering->setGeometry(QRect(340, 170, 131, 51));
 
         retranslateUi(Kalibrering);
 
@@ -53,7 +53,7 @@ public:
         Kalibrering->setWindowTitle(QCoreApplication::translate("Kalibrering", "Dialog", nullptr));
         ny_kalibrering->setText(QCoreApplication::translate("Kalibrering", "Ny kalibrering", nullptr));
         annuller->setText(QCoreApplication::translate("Kalibrering", "F\303\246rdig", nullptr));
-        pushButton->setText(QCoreApplication::translate("Kalibrering", "Slet kalibrering", nullptr));
+        slet_kalibrering->setText(QCoreApplication::translate("Kalibrering", "Slet kalibrering", nullptr));
     } // retranslateUi
 
 };

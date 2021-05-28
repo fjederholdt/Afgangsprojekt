@@ -71,6 +71,19 @@
     <string>Test kalibrering</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="annuller">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>380</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Færdig</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
