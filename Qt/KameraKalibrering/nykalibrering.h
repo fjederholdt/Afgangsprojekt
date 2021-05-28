@@ -24,6 +24,12 @@
 #include <opencv2/aruco/charuco.hpp>
 #include <opencv2/aruco/dictionary.hpp>
 #include <opencv2/opencv.hpp>
+#include <pylon/PylonBase.h>
+#include <pylon/PylonIncludes.h>
+#include <pylon/TlFactory.h>
+#include <pylon/ImageFormatConverter.h>
+#include <pylon/PylonImage.h>
+
 #include "fsclass.h"
 
 namespace Ui {

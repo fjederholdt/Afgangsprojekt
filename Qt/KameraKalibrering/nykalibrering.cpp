@@ -6,6 +6,7 @@
 using namespace std::filesystem;
 using namespace std;
 using namespace cv;
+using namespace Pylon;
 
 const float chessSquareDim = 0.02f;
 const float arucoSquareDim = 0.015f;
@@ -54,6 +55,64 @@ void NyKalibrering::removeList()
 
 void NyKalibrering::on_tag_billede_clicked()
 {
+    Pylon::PylonInitialize();
+
+    try
+    {
+        CTlFactory& tlFactory = CTlFactory::GetInstance();
+
+                // Get all attached devices and exit application if no device is found.
+        CDeviceInfo device;
+
+        CInstantCamera camera;
+
+        camera.Attach(tlFactory.CreateDevice(device));
+
+        CGrabResultPtr ptrGrabResult;
+        CImageFormatConverter formatConverter;
+        formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+        CPylonImage pylonImage;
+
+                // Create an OpenCV image
+        Mat openCvImage;//me
+        if (camera.IsGrabbing())
+        {
+            camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
+
+            intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
+
+                    // Now, the image data can be processed.
+                  //  cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
+                   // cout << "SizeX: " << ptrGrabResult->GetWidth() << endl;
+                   // cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
+            const uint8_t *pImageBuffer = (uint8_t *)ptrGrabResult->GetBuffer();
+                   // cout << "Gray value of first pixel: " << (uint32_t)pImageBuffer[0] << endl << endl;
+
+
+            formatConverter.Convert(pylonImage, ptrGrabResult);//me
+                    // Create an OpenCV image out of pylon image
+            openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
+            if (cameraContextValue == 0)
+            {
+                namedWindow("camera");
+                imshow("camera", openCvImage);
+                waitKey(20);
+               // imwrite("right_img.png", openCvImage);
+            }
+            else if (cameraContextValue == 1)
+            {
+                imshow("right camera", openCvImage);
+                imwrite("right_img.png", openCvImage);
+            }
+        }
+    }
+    catch (const GenericException &e)
+    {
+                // Error handling
+                cerr << "An exception occurred." << endl
+                    << e.GetDescription() << endl;
+    }
+    /*
     cam.open(0,CAP_ANY);
     if(!cam.isOpened())
         std::cout << "no camera" << std::endl;
@@ -68,10 +127,10 @@ void NyKalibrering::on_tag_billede_clicked()
 
         char c = (char)waitKey(1);
         if (c == 27) break;
-    }
+    }*/
     destroyAllWindows();
-    cvtColor(cam_img, save_img, COLOR_RGB2GRAY);
-    imwrite(path+"/"+to_string(image_nr)+".png", save_img);
+    //cvtColor(cam_img, save_img, COLOR_RGB2GRAY);
+    //imwrite(path+"/"+to_string(image_nr)+".png", save_img);
     addList(to_string(image_nr)+".png");
     /*#############################3
      * Make receive kode for robot poses
