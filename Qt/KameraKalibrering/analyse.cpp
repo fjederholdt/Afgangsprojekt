@@ -111,12 +111,22 @@ void Analyse::on_anvend_valgte_kalibrering_clicked()
         msg.setText(QString::fromStdString("Ingen kalibrering valgt - vælg kalibrering fra tabelen"));
         msg.exec();
     }
-
 }
 
 void Analyse::on_test_kalibrering_clicked()
 {
 
+}
+
+pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
+    pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+    viewer->setBackgroundColor (0, 0, 0);
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> rgb(cloud, 0, 0, 255);
+    viewer->addPointCloud<pcl::PointXYZ> (cloud, rgb, "sample cloud");
+    viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
+    viewer->addCoordinateSystem (1);
+    //viewer->initCameraParameters ();
+    return (viewer);
 }
 
 void Analyse::on_visualiser_clicked()
@@ -129,8 +139,54 @@ void Analyse::on_visualiser_clicked()
         int row = index.row();
         int col = 0;
         QString datoStr = ui->tableWidget->item(row,col)->text();
-        QString kalibPath = QString::fromStdString(path)+datoStr;
-        qDebug() << kalibPath;
+        std::string kalibPath = path+datoStr.toStdString();
+
+        FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
+        FSClass fsRobot(kalibPath+"/robotData.yml", datoStr.toStdString());
+        FSClass fsHandEye(kalibPath+"/handEyeData.yml", datoStr.toStdString());
+
+        Mat cameraRm, cameraTm;
+        Mat robotRm, robotTm;
+        Mat handEyeRm, handEyeTm;
+
+        fsCamera.readCamera(cameraRm, cameraTm);
+        fsRobot.readRobot(robotRm, robotTm);
+        fsHandEye.readHandEye(handEyeRm, handEyeTm);
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
+
+        pcl::PointXYZ robot;
+        pcl::PointXYZ camera;
+        pcl::PointXYZ handeye;
+
+        camera._PointXYZ::x = cameraTm.at<double>(0);
+        camera._PointXYZ::y = cameraTm.at<double>(1);
+        camera._PointXYZ::z = cameraTm.at<double>(2);
+
+        robot._PointXYZ::x = robotTm.at<double>(0);
+        robot._PointXYZ::y = robotTm.at<double>(1);
+        robot._PointXYZ::z = robotTm.at<double>(2);
+
+        handeye._PointXYZ::x = handEyeTm.at<double>(0);
+        handeye._PointXYZ::y = handEyeTm.at<double>(1);
+        handeye._PointXYZ::z = handEyeTm.at<double>(2);
+
+        basic_cloud_ptr->push_back(camera);
+        basic_cloud_ptr->push_back(robot);
+        basic_cloud_ptr->push_back(handeye);
+
+        basic_cloud_ptr->width = basic_cloud_ptr->size();
+        basic_cloud_ptr->height = 1;
+
+        pcl::visualization::PCLVisualizer::Ptr viewer;
+
+        viewer = viz((pcl::PointCloud<pcl::PointXYZ>::ConstPtr)basic_cloud_ptr);
+
+        while(!viewer->wasStopped())
+        {
+            viewer->spinOnce(100);
+        }
+        //qDebug() << kalibPath;
     }
     else if(rows.size() > 1)
     {
@@ -144,6 +200,7 @@ void Analyse::on_visualiser_clicked()
         msg.setText(QString::fromStdString("Ingen kalibrering valgt - vælg kalibrering fra tabelen"));
         msg.exec();
     }
+
 }
 
 void Analyse::on_annuller_clicked()
