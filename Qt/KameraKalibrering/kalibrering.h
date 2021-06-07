@@ -8,6 +8,9 @@
 #include <vector>
 #include <time.h>
 
+#include "fsclass.h"
+#include "dhparams.h"
+
 namespace Ui {
 class Kalibrering;
 }

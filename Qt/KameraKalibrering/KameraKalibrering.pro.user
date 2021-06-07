@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.0, 2021-06-01T13:45:29. -->
+<!-- Written by QtCreator 4.15.0, 2021-06-07T16:03:06. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -256,7 +256,9 @@
     </valuelist>
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
+     <value type="QString">LD_LIBRARY_PATH=/home/jeppe/Qt/5.15.2/gcc_64/lib:/opt/pylon/lib</value>
+    </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/KameraKalibrering.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/KameraKalibrering.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>

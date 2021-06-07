@@ -41,9 +41,12 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-INCLUDEPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
-DEPENDPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
-LIBS += -L$$PWD/../../../../../../opt/pylon/lib -L$$PWD/../../../../../../usr/local/lib -lfreetype \
+#INCLUDEPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
+#DEPENDPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
+#LIBS += -L$$PWD/../../../../../../opt/pylon/lib -L$$PWD/../../../../../../usr/local/lib -lfreetype \
+INCLUDEPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.0 /usr/include/vtk-7.1 /usr/include/eigen3
+DEPENDPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.0 /usr/include/vtk-7.1 /usr/include/eigen3
+LIBS += -L/opt/pylon/lib -L/usr/local/lib -lfreetype \
 -lpylonbase \
 -lpylonbase-6.1.1 \
 -lpylonutility-6.1.1 \
@@ -55,12 +58,8 @@ LIBS += -L$$PWD/../../../../../../opt/pylon/lib -L$$PWD/../../../../../../usr/lo
 -lvtkCommonDataModel-7.1 \
 -lvtkCommonMath-7.1 \
 -lvtkCommonCore-7.1 \
-#-lGenApi_gcc_v3_1_Basler_pylon \
+-lGenApi_gcc_v3_1_Basler_pylon \
 -lGCBase_gcc_v3_1_Basler_pylon \
-#-lLog_gcc_v3_1_Basler_pylon \
-#-lMathParser_gcc_v3_1_Basler_pylon \
-#-lXmlParser_gcc_v3_1_Basler_pylon \
-#-lNodeMapData_gcc_v3_1_Basler_pylon \
 -lboost_filesystem \
 -lopencv_core \
 -lopencv_aruco \
@@ -76,42 +75,23 @@ LIBS += -L$$PWD/../../../../../../opt/pylon/lib -L$$PWD/../../../../../../usr/lo
 -lrtde \
 -lpthread
 
-unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib/ -lpylonbase \
--lpylonutility \
--lpylonutility-6.1.1 \
--lGenApi_gcc_v3_1_Basler_pylon \
+#unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib -lpylonbase \
+#-lpylonutility \
+#-lpylonutility-6.1.1 \
+#-lGenApi_gcc_v3_1_Basler_pylon \
 #-lGCBase_gcc_v3_1_Basler_pylon \
 #-lLog_gcc_v3_1_Basler_pylon \
 #-lMathParser_gcc_v3_1_Basler_pylon \
 #-lXmlParser_gcc_v3_1_Basler_pylon \
 #-lNodeMapData_gcc_v3_1_Basler_pylon \
 
-INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
-DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
+#INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
+#DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
 
-#unix:!macx: LIBS += -L$$PWD/../../../../../../usr/lib/x86_64-linux-gnu/ -lpcl_common \
-#-lpcl_visualization \
-#-lvtksys-7.1 \
-#-lvtkRenderingCore-7.1 \
-#-lvtkCommonDataModel-7.1 \
-#-lvtkCommonMath-7.1 \
-#-lvtkCommonCore-7.1 \
+#unix:!macx: LIBS += -lpylonbase-6.1.1 -lGCBase_gcc_v3_1_Basler_pylon -lpylonutility-6.1.1
 
-#INCLUDEPATH += $$PWD/../../../../../../usr/include/pcl-1.10 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
-#DEPENDPATH += $$PWD/../../../../../../usr/include/pcl-1.10 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
+#unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib/ -lpylonbase-6.1.1
 
-#unix:!macx: LIBS += -L$$PWD/../../../../../../usr/lib/x86_64-linux-gnu/
-#INCLUDEPATH +=
-#DEPENDPATH +=
-
-#LD_LIBRARY_PATH=$$ORIGIN/libs
-
-#unix:QMAKE_RPATHDIR += $ORIGIN/libs
-
-unix:!macx: LIBS += -lpylonbase-6.1.1 -lGCBase_gcc_v3_1_Basler_pylon -lpylonutility-6.1.1
-
-unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib/ -lpylonbase-6.1.1
-
-INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
-DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
+#INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
+#DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
 

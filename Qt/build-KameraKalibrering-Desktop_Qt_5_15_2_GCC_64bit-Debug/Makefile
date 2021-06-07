@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../KameraKalibrering -I. -I/usr/local/include/opencv2 -I/opt/pylon/include -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/../../../../../../usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/opt/pylon/include -I/opt/pylon/include -I../../../../Qt/5.15.2/gcc_64/include -I../../../../Qt/5.15.2/gcc_64/include/QtWidgets -I../../../../Qt/5.15.2/gcc_64/include/QtGui -I../../../../Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/libdrm -I. -I../../../../Qt/5.15.2/gcc_64/mkspecs/linux-g++
+INCPATH       = -I../KameraKalibrering -I. -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I../../../../Qt/5.15.2/gcc_64/include -I../../../../Qt/5.15.2/gcc_64/include/QtWidgets -I../../../../Qt/5.15.2/gcc_64/include/QtGui -I../../../../Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/libdrm -I. -I../../../../Qt/5.15.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/jeppe/Qt/5.15.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = KameraKalibrering1.0.0
 DISTDIR = /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/.tmp/KameraKalibrering1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/jeppe/Qt/5.15.2/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/../../../../../../opt/pylon/lib -L/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/../../../../../../usr/local/lib -lfreetype -lpcl_common -lpcl_io -lpcl_visualization -lvtksys-7.1 -lvtkRenderingCore-7.1 -lvtkCommonDataModel-7.1 -lvtkCommonMath-7.1 -lvtkCommonCore-7.1 -lboost_filesystem -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lrtde -L/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/../../../../../../opt/pylon/lib/ -lpylonbase -lpylonutility -lGenApi_gcc_v3_1_Basler_pylon -lGCBase_gcc_v3_1_Basler_pylon -lpylonutility-6.1.1 -lpylonbase-6.1.1 /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Widgets.so /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Gui.so /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -L/opt/pylon/lib -L/usr/local/lib -lfreetype -lpylonbase -lpylonbase-6.1.1 -lpylonutility-6.1.1 -lpcl_common -lpcl_io -lpcl_visualization -lvtksys-7.1 -lvtkRenderingCore-7.1 -lvtkCommonDataModel-7.1 -lvtkCommonMath-7.1 -lvtkCommonCore-7.1 -lGenApi_gcc_v3_1_Basler_pylon -lGCBase_gcc_v3_1_Basler_pylon -lboost_filesystem -lopencv_core -lopencv_aruco -lopencv_highgui -lopencv_video -lopencv_ml -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lrtde /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Widgets.so /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Gui.so /home/jeppe/Qt/5.15.2/gcc_64/lib/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -848,7 +848,7 @@ moc_analyse.cpp: ../KameraKalibrering/analyse.h \
 		../KameraKalibrering/fsclass.h \
 		moc_predefs.h \
 		../../../../Qt/5.15.2/gcc_64/bin/moc
-	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/opt/pylon/include -I/opt/pylon/include -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/analyse.h -o moc_analyse.cpp
+	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/analyse.h -o moc_analyse.cpp
 
 moc_kalibrering.cpp: ../KameraKalibrering/kalibrering.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QDialog \
@@ -957,9 +957,11 @@ moc_kalibrering.cpp: ../KameraKalibrering/kalibrering.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtouchdevice.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMessageBox \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmessagebox.h \
+		../KameraKalibrering/fsclass.h \
+		../KameraKalibrering/dhparams.h \
 		moc_predefs.h \
 		../../../../Qt/5.15.2/gcc_64/bin/moc
-	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/opt/pylon/include -I/opt/pylon/include -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/kalibrering.h -o moc_kalibrering.cpp
+	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/kalibrering.h -o moc_kalibrering.cpp
 
 moc_mainwindow.cpp: ../KameraKalibrering/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMainWindow \
@@ -1310,7 +1312,7 @@ moc_mainwindow.cpp: ../KameraKalibrering/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qfiledialog.h \
 		moc_predefs.h \
 		../../../../Qt/5.15.2/gcc_64/bin/moc
-	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/opt/pylon/include -I/opt/pylon/include -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/mainwindow.h -o moc_mainwindow.cpp
+	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/mainwindow.h -o moc_mainwindow.cpp
 
 moc_nykalibrering.cpp: ../KameraKalibrering/nykalibrering.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QDialog \
@@ -1554,7 +1556,7 @@ moc_nykalibrering.cpp: ../KameraKalibrering/nykalibrering.h \
 		../KameraKalibrering/fsclass.h \
 		moc_predefs.h \
 		../../../../Qt/5.15.2/gcc_64/bin/moc
-	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/opt/pylon/include -I/opt/pylon/include -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/nykalibrering.h -o moc_nykalibrering.cpp
+	/home/jeppe/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/jeppe/Dokumenter/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/jeppe/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.0 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/home/jeppe/Qt/5.15.2/gcc_64/include -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtGui -I/home/jeppe/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/nykalibrering.h -o moc_nykalibrering.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1731,14 +1733,7 @@ analyse.o: ../KameraKalibrering/analyse.cpp ../KameraKalibrering/analyse.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qgridlayout.h \
 		../KameraKalibrering/fsclass.h \
-		ui_analyse.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/QVariant \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QTableWidget \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtablewidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtableview.h
+		ui_analyse.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o analyse.o ../KameraKalibrering/analyse.cpp
 
 dhparams.o: ../KameraKalibrering/dhparams.cpp ../KameraKalibrering/dhparams.h
@@ -1854,38 +1849,9 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtouchdevice.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMessageBox \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmessagebox.h \
+		../KameraKalibrering/fsclass.h \
+		../KameraKalibrering/dhparams.h \
 		ui_kalibrering.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/QVariant \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QApplication \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcoreapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qeventloop.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qguiapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qinputmethod.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QListWidget \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlistwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlistview.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractitemview.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qframe.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractitemmodel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qitemselectionmodel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstyleoption.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractspinbox.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qvalidator.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qregularexpression.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qicon.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstyle.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtabbar.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtabwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qrubberband.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
 		../KameraKalibrering/nykalibrering.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QDialogButtonBox \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
@@ -2021,16 +1987,19 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		/opt/pylon/include/pylon/FeaturePersistence.h \
 		/opt/pylon/include/pylon/VideoWriter.h \
 		/opt/pylon/include/pylon/_VideoWriterParams.h \
-		../KameraKalibrering/fsclass.h \
 		../KameraKalibrering/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMainWindow \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmainwindow.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qicon.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/QtGui \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/QtGuiDepends \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/QtCore \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/QtCoreDepends \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractanimation.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstracteventdispatcher.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/qeventloop.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractitemmodel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractnativeeventfilter.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractproxymodel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractstate.h \
@@ -2048,6 +2017,7 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcborvalue.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qdatetime.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcborcommon.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/qregularexpression.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/quuid.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcbormap.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcborstream.h \
@@ -2057,6 +2027,7 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcollator.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcommandlineoption.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcommandlineparser.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcoreapplication.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qconcatenatetablesproxymodel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcryptographichash.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qdeadlinetimer.h \
@@ -2083,6 +2054,7 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qhistorystate.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qidentityproxymodel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qisenum.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/qitemselectionmodel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qjsonarray.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qjsonvalue.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtCore/qjsondocument.h \
@@ -2179,6 +2151,8 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qgenericmatrix.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qgenericplugin.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qgenericpluginfactory.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qguiapplication.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qinputmethod.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qiconengine.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qiconengineplugin.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qimageiohandler.h \
@@ -2246,11 +2220,13 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextdocumentwriter.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextlist.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtexttable.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qvalidator.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtguiversion.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QWidget \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QInputDialog \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qinputdialog.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlineedit.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qframe.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QFileDialog \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qfiledialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o kalibrering.o ../KameraKalibrering/kalibrering.cpp
@@ -2957,27 +2933,15 @@ mainwindow.o: ../KameraKalibrering/mainwindow.cpp ../KameraKalibrering/mainwindo
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QFileDialog \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qfiledialog.h \
 		ui_mainwindow.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/QVariant \
+		../KameraKalibrering/kalibrering.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QDialog \
+		../KameraKalibrering/fsclass.h \
+		../KameraKalibrering/dhparams.h \
+		../KameraKalibrering/analyse.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtCore/QDebug \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QApplication \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qapplication.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QFrame \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QLabel \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlabel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMenuBar \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmenubar.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmenu.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qaction.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qactiongroup.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QStatusBar \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstatusbar.h \
-		../KameraKalibrering/kalibrering.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QDialog \
-		../KameraKalibrering/analyse.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/QDebug \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QHeaderView \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qheaderview.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractitemview.h \
@@ -2997,7 +2961,137 @@ mainwindow.o: ../KameraKalibrering/mainwindow.cpp ../KameraKalibrering/mainwindo
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlayoutitem.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qgridlayout.h \
-		../KameraKalibrering/fsclass.h
+		/opt/pylon/include/pylon/PylonBase.h \
+		/opt/pylon/include/pylon/Platform.h \
+		/opt/pylon/include/pylon/api_autoconf.h \
+		/opt/pylon/include/pylon/stdinclude.h \
+		/opt/pylon/include/Base/GCNamespace.h \
+		/opt/pylon/include/GenICamVersion.h \
+		/opt/pylon/include/_GenICamVersion.h \
+		/opt/pylon/include/GenApi/GenApiNamespace.h \
+		/opt/pylon/include/pylon/TypeMappings.h \
+		/opt/pylon/include/Base/GCTypes.h \
+		/opt/pylon/include/Base/GCString.h \
+		/opt/pylon/include/Base/GCStringVector.h \
+		/opt/pylon/include/Base/GCException.h \
+		/opt/pylon/include/GenApi/Synch.h \
+		/opt/pylon/include/GenApi/GenApiDll.h \
+		/opt/pylon/include/pylon/PylonIncludes.h \
+		/opt/pylon/include/pylon/PylonLinkage.h \
+		/opt/pylon/include/Base/GCLinkage.h \
+		/opt/pylon/include/GenApi/GenApi.h \
+		/opt/pylon/include/Base/GCBase.h \
+		/opt/pylon/include/Base/GCArray.h \
+		/opt/pylon/include/Base/GCUtilities.h \
+		/opt/pylon/include/Base/GCRTSSUtilities.h \
+		/opt/pylon/include/GenApi/Pointer.h \
+		/opt/pylon/include/GenICamFwd.h \
+		/opt/pylon/include/GenApi/IEnumeration.h \
+		/opt/pylon/include/GenApi/IEnumEntry.h \
+		/opt/pylon/include/GenApi/IValue.h \
+		/opt/pylon/include/GenApi/Types.h \
+		/opt/pylon/include/GenApi/Autovector.h \
+		/opt/pylon/include/GenApi/IBase.h \
+		/opt/pylon/include/GenApi/Reference.h \
+		/opt/pylon/include/GenApi/INode.h \
+		/opt/pylon/include/GenApi/Container.h \
+		/opt/pylon/include/GenApi/IFloat.h \
+		/opt/pylon/include/GenApi/IInteger.h \
+		/opt/pylon/include/GenApi/ICategory.h \
+		/opt/pylon/include/GenApi/IRegister.h \
+		/opt/pylon/include/GenApi/IBoolean.h \
+		/opt/pylon/include/GenApi/IPort.h \
+		/opt/pylon/include/GenApi/IPortRecorder.h \
+		/opt/pylon/include/GenApi/IPortConstruct.h \
+		/opt/pylon/include/GenApi/IChunkPort.h \
+		/opt/pylon/include/GenApi/IString.h \
+		/opt/pylon/include/GenApi/INodeMap.h \
+		/opt/pylon/include/GenApi/IDestroy.h \
+		/opt/pylon/include/GenApi/IDeviceInfo.h \
+		/opt/pylon/include/GenApi/ISelector.h \
+		/opt/pylon/include/GenApi/ICommand.h \
+		/opt/pylon/include/GenApi/IUserData.h \
+		/opt/pylon/include/GenApi/NodeMapRef.h \
+		/opt/pylon/include/GenApi/NodeMapFactory.h \
+		/opt/pylon/include/GenApi/GenApiVersion.h \
+		/opt/pylon/include/GenApi/NodeCallback.h \
+		/opt/pylon/include/GenApi/Persistence.h \
+		/opt/pylon/include/GenApi/StructPort.h \
+		/opt/pylon/include/GenApi/PortImpl.h \
+		/opt/pylon/include/GenApi/SelectorSet.h \
+		/opt/pylon/include/GenApi/ISelectorDigit.h \
+		/opt/pylon/include/GenApi/GenApiLinkage.h \
+		/opt/pylon/include/pylon/PylonVersionInfo.h \
+		/opt/pylon/include/pylon/Info.h \
+		/opt/pylon/include/pylon/TlInfo.h \
+		/opt/pylon/include/pylon/DeviceClass.h \
+		/opt/pylon/include/pylon/DeviceInfo.h \
+		/opt/pylon/include/pylon/Container.h \
+		/opt/pylon/include/pylon/InterfaceInfo.h \
+		/opt/pylon/include/pylon/DeviceFactory.h \
+		/opt/pylon/include/pylon/DeviceAccessMode.h \
+		/opt/pylon/include/pylon/PylonVersionNumber.h \
+		/opt/pylon/include/pylon/TransportLayer.h \
+		/opt/pylon/include/pylon/Interface.h \
+		/opt/pylon/include/pylon/TlFactory.h \
+		/opt/pylon/include/pylon/EventAdapter.h \
+		/opt/pylon/include/pylon/Callback.h \
+		/opt/pylon/include/pylon/Device.h \
+		/opt/pylon/include/pylon/WaitObject.h \
+		/opt/pylon/include/pylon/WaitObjects.h \
+		/opt/pylon/include/pylon/StreamGrabber.h \
+		/opt/pylon/include/pylon/PixelType.h \
+		/opt/pylon/include/pylon/Pixel.h \
+		/opt/pylon/include/pylon/PixelTypeMapper.h \
+		/opt/pylon/include/GenApi/IEnumerationT.h \
+		/opt/pylon/include/GenApi/Compatibility.h \
+		/opt/pylon/include/pylon/Result.h \
+		/opt/pylon/include/pylon/PayloadType.h \
+		/opt/pylon/include/pylon/ResultImage.h \
+		/opt/pylon/include/pylon/Image.h \
+		/opt/pylon/include/pylon/ChunkParser.h \
+		/opt/pylon/include/pylon/EventGrabber.h \
+		/opt/pylon/include/pylon/EventGrabberProxy.h \
+		/opt/pylon/include/pylon/NodeMapProxy.h \
+		/opt/pylon/include/pylon/AcquireSingleFrameConfiguration.h \
+		/opt/pylon/include/pylon/InstantCamera.h \
+		/opt/pylon/include/pylon/ImageEventHandler.h \
+		/opt/pylon/include/pylon/GrabResultPtr.h \
+		/opt/pylon/include/pylon/GrabResultData.h \
+		/opt/pylon/include/pylon/ConfigurationEventHandler.h \
+		/opt/pylon/include/pylon/CameraEventHandler.h \
+		/opt/pylon/include/pylon/BufferFactory.h \
+		/opt/pylon/include/pylon/SfncVersion.h \
+		/opt/pylon/include/pylon/_InstantCameraParams.h \
+		/opt/pylon/include/pylon/ParameterIncludes.h \
+		/opt/pylon/include/pylon/ArrayParameter.h \
+		/opt/pylon/include/pylon/Parameter.h \
+		/opt/pylon/include/pylon/BooleanParameter.h \
+		/opt/pylon/include/pylon/CommandParameter.h \
+		/opt/pylon/include/pylon/EnumParameter.h \
+		/opt/pylon/include/pylon/FloatParameter.h \
+		/opt/pylon/include/pylon/IntegerParameter.h \
+		/opt/pylon/include/pylon/StringParameter.h \
+		/opt/pylon/include/pylon/EnumParameterT.h \
+		/opt/pylon/include/pylon/ConfigurationHelper.h \
+		/opt/pylon/include/pylon/InstantCameraArray.h \
+		/opt/pylon/include/pylon/AcquireContinuousConfiguration.h \
+		/opt/pylon/include/pylon/SoftwareTriggerConfiguration.h \
+		/opt/pylon/include/pylon/InstantInterface.h \
+		/opt/pylon/include/pylon/_BaslerUniversalInterfaceParams.h \
+		/opt/pylon/include/pylon/PylonUtilityIncludes.h \
+		/opt/pylon/include/pylon/PylonUtility.h \
+		/opt/pylon/include/pylon/PylonImage.h \
+		/opt/pylon/include/pylon/PylonImageBase.h \
+		/opt/pylon/include/pylon/ReusableImage.h \
+		/opt/pylon/include/pylon/ImagePersistence.h \
+		/opt/pylon/include/pylon/PixelData.h \
+		/opt/pylon/include/pylon/ImageDecompressor.h \
+		/opt/pylon/include/pylon/ImageFormatConverter.h \
+		/opt/pylon/include/pylon/_ImageFormatConverterParams.h \
+		/opt/pylon/include/pylon/FeaturePersistence.h \
+		/opt/pylon/include/pylon/VideoWriter.h \
+		/opt/pylon/include/pylon/_VideoWriterParams.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../KameraKalibrering/mainwindow.cpp
 
 nykalibrering.o: ../KameraKalibrering/nykalibrering.cpp ../KameraKalibrering/nykalibrering.h \
@@ -3241,39 +3335,6 @@ nykalibrering.o: ../KameraKalibrering/nykalibrering.cpp ../KameraKalibrering/nyk
 		/opt/pylon/include/pylon/_VideoWriterParams.h \
 		../KameraKalibrering/fsclass.h \
 		ui_nykalibrering.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/QVariant \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QApplication \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qcoreapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qeventloop.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qguiapplication.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qinputmethod.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QLabel \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlabel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qframe.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QListWidget \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlistwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlistview.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractitemview.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qabstractitemmodel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qitemselectionmodel.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstyleoption.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractspinbox.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qvalidator.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtCore/qregularexpression.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtGui/qicon.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstyle.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtabbar.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtabwidget.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qrubberband.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
 		../KameraKalibrering/kalibrering.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMessageBox \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmessagebox.h \
