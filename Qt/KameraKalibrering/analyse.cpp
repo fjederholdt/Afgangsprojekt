@@ -118,7 +118,7 @@ void Analyse::on_test_kalibrering_clicked()
 
 }
 
-pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
+/*pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     viewer->setBackgroundColor (0, 0, 0);
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> rgb(cloud, 0, 0, 255);
@@ -127,7 +127,7 @@ pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::Cons
     viewer->addCoordinateSystem (1);
     //viewer->initCameraParameters ();
     return (viewer);
-}
+}*/
 
 void Analyse::on_visualiser_clicked()
 {
@@ -153,7 +153,7 @@ void Analyse::on_visualiser_clicked()
         fsRobot.readRobot(robotRm, robotTm);
         fsHandEye.readHandEye(handEyeRm, handEyeTm);
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
+      /*  pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
 
         pcl::PointXYZ robot;
         pcl::PointXYZ camera;
@@ -186,7 +186,7 @@ void Analyse::on_visualiser_clicked()
         {
             viewer->spinOnce(100);
         }
-        //qDebug() << kalibPath;
+        //qDebug() << kalibPath;*/
     }
     else if(rows.size() > 1)
     {

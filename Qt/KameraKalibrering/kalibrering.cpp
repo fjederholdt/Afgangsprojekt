@@ -84,13 +84,23 @@ void Kalibrering::removeKalib()
 void Kalibrering::on_slet_kalibrering_clicked()
 {
     vector<std::string> pathVector;
-       QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
-       for(int i = 0; i < items.size(); i++)
-          pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
-       for(size_t i = 0; i < pathVector.size(); i++)
-       {
-           boost::filesystem::remove_all(pathVector.at(i));
-       }
-       removeKalib();
+    QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
+    for(int i = 0; i < items.size(); i++)
+        pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
+    for(size_t i = 0; i < pathVector.size(); i++)
+    {
+        boost::filesystem::remove_all(pathVector.at(i));
+    }
+    removeKalib();
+}
+
+
+void Kalibrering::on_kalibrere_clicked()
+{
+    vector<std::string> pathVector;
+    QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
+    for(int i = 0; i < items.size(); i++)
+        pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
+
 }
 

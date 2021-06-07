@@ -6,6 +6,7 @@
 using namespace std::filesystem;
 using namespace std;
 using namespace cv;
+using namespace ur_rtde;
 using namespace Pylon;
 
 const float chessSquareDim = 0.02f;
@@ -22,6 +23,7 @@ NyKalibrering::NyKalibrering(QWidget *parent) :
 NyKalibrering::~NyKalibrering()
 {
     delete ui;
+    output_file.close();
 }
 
 void NyKalibrering::setPath(std::string &kalibpath)
@@ -37,6 +39,7 @@ void NyKalibrering::setPath(std::string &kalibpath)
     {
         std::cerr << "Error : " << strerror(errno) << std::endl;
     }
+    output_file.open(path+"/robotPoses.csv");
 }
 
 void NyKalibrering::addList(std::string strItem)
@@ -55,55 +58,52 @@ void NyKalibrering::removeList()
 
 void NyKalibrering::on_tag_billede_clicked()
 {
-    Pylon::PylonInitialize();
-
+    Pylon::PylonAutoInitTerm autoInitTerm;
+    bool saveImage = true;
     try
     {
-        CTlFactory& tlFactory = CTlFactory::GetInstance();
+        CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
 
-                // Get all attached devices and exit application if no device is found.
-        CDeviceInfo device;
+        GenApi::INodeMap& nodemap = camera.GetNodeMap();
+        camera.Open();
+        GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+        GenApi::CIntegerPtr height = nodemap.GetNode("Height");
 
-        CInstantCamera camera;
+        camera.MaxNumBuffer = 5;
 
-        camera.Attach(tlFactory.CreateDevice(device));
-
-        CGrabResultPtr ptrGrabResult;
         CImageFormatConverter formatConverter;
         formatConverter.OutputPixelFormat = PixelType_BGR8packed;
-        CPylonImage pylonImage;
 
-                // Create an OpenCV image
-        Mat openCvImage;//me
-        if (camera.IsGrabbing())
+        CPylonImage pylonImage;
+        Mat openCvImage;
+
+        camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
+
+        CGrabResultPtr ptrGrabResult;
+
+        while(camera.IsGrabbing())
         {
             camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
 
-            intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-
-                    // Now, the image data can be processed.
-                  //  cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
-                   // cout << "SizeX: " << ptrGrabResult->GetWidth() << endl;
-                   // cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
-            const uint8_t *pImageBuffer = (uint8_t *)ptrGrabResult->GetBuffer();
-                   // cout << "Gray value of first pixel: " << (uint32_t)pImageBuffer[0] << endl << endl;
-
-
-            formatConverter.Convert(pylonImage, ptrGrabResult);//me
-                    // Create an OpenCV image out of pylon image
-            openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-            if (cameraContextValue == 0)
+            if(ptrGrabResult->GrabSucceeded())
             {
-                namedWindow("camera");
-                imshow("camera", openCvImage);
-                waitKey(20);
-               // imwrite("right_img.png", openCvImage);
+                formatConverter.Convert(pylonImage, ptrGrabResult);
+                openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+
+                if(saveImage)
+                {
+                    Mat grayImage;
+                    cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+                    imwrite(path+"/"+to_string(image_nr)+".png", grayImage);
+                }
             }
-            else if (cameraContextValue == 1)
+            /*namedWindow("Camera feed", 1);
+            imshow("Camera feed", openCvImage);
+            if (waitKey(1) >= 0)
             {
-                imshow("right camera", openCvImage);
-                imwrite("right_img.png", openCvImage);
-            }
+                destroyAllWindows();
+                break;
+            }*/
         }
     }
     catch (const GenericException &e)
@@ -112,43 +112,15 @@ void NyKalibrering::on_tag_billede_clicked()
                 cerr << "An exception occurred." << endl
                     << e.GetDescription() << endl;
     }
-    /*
-    cam.open(0,CAP_ANY);
-    if(!cam.isOpened())
-        std::cout << "no camera" << std::endl;
-    Mat cam_img, save_img;
-    namedWindow("Camera");
-    for (; ; ) {
-        cam >> cam_img;
-        if(cam_img.empty())
-            break;
 
-        imshow("Camera", cam_img);
+    RTDEReceiveInterface rtde_receive(hostname);
+    std::vector<double> joint_positions = rtde_receive.getActualQ();
+    output_file << to_string(image_nr)+".png,robot:,";
+    std::ostream_iterator<double> output_iterator(output_file, ",");
+    std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
+    output_file << endl;
 
-        char c = (char)waitKey(1);
-        if (c == 27) break;
-    }*/
-    destroyAllWindows();
-    //cvtColor(cam_img, save_img, COLOR_RGB2GRAY);
-    //imwrite(path+"/"+to_string(image_nr)+".png", save_img);
     addList(to_string(image_nr)+".png");
-    /*#############################3
-     * Make receive kode for robot poses
-     * RTDEReceiveInterfaec rtde_receive(192.168.250.1);
-     * std::vector<double> joint_positions = rtde_receive.getActualQ();
-     * or
-     * std:vector<double> cartesian_coords = rtde_receive.getActualTCPPose();
-     * And link pose with picture
-     * std::ofstream output_file;
-     * output_file.open(path+"/"+localTime+".csv");
-     * output_file << to_string(image_nr)+".png, robot:,";
-     * std::ostream_iterator<std::string> output_iterator(output_file, ", ");
-     * std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
-     * or
-     * std::ostream_iterator<std::string> output_iterator(output_file, ", ");
-     * std::copy(cartesian_coords.begin(), cartesian_coords.end(), output_iterator);
-     * output_file << "\n";
-     */
     image_nr++;
 }
 
@@ -276,7 +248,7 @@ void NyKalibrering::on_kalibrere_clicked()
     }
 
     fstream fin;
-    fin.open(path+"/"+localTime+".csv", ios::in);
+    fin.open(path+"/robotPoses.csv", ios::in);
     vector<string> row;
     string line, word;
     vector<vector<long double>> robotPoses;
@@ -288,13 +260,21 @@ void NyKalibrering::on_kalibrere_clicked()
         stringstream s(line);
         int rowlength = 0;
         while(getline(s, word, ',')){
-            if(word.find(".png") == std::string::npos || word.find("robot:") == std::string::npos)
+            for(int i = 0; i < items.size(); i++)
             {
-                row.push_back(word);
-                rowlength++;
+                if(word.find(".png"))
+                {
+                    row.push_back(word);
+                }
+                if(word.find(".png") == std::string::npos || word.find("robot:") == std::string::npos)
+                {
+                    row.push_back(word);
+                    rowlength++;
+                }
+                else
+                    continue;
             }
-            else
-                continue;
+
         }
         for	(int i=0; i<rowlength; i++){
             pose.push_back(stold(row.at(i)));

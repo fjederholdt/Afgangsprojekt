@@ -13,9 +13,16 @@
 #include <ur_rtde/rtde_receive_interface.h>
 #include <ur_rtde/rtde_control_interface.h>
 
+#include <pylon/PylonBase.h>
+#include <pylon/PylonIncludes.h>
+#include <pylon/TlFactory.h>
+#include <pylon/ImageFormatConverter.h>
+#include <pylon/PylonImage.h>
+
 using namespace cv;
 using namespace std;
 using namespace ur_rtde;
+using namespace Pylon;
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -34,10 +41,6 @@ MainWindow::MainWindow(QWidget *parent)
     {
         path = folder->selectedFiles().at(0);
     }
-    //dialog = QInputDialog::getText(this, tr("Indsæt sti til Afgangsprojekt mappen"),tr("sti: (uden /Afgangprojekt..)"), QLineEdit::Normal,"", &ok);
-    //path = "/home/jeppe/Dokumenter/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
-    //qDebug() << path;
-    //connect(ui->cameraButton, &QPushButton::clicked, this, &MainWindow::onOpenGL);
 }
 
 MainWindow::~MainWindow()
@@ -70,85 +73,75 @@ void MainWindow::on_cameraButton_clicked()
     {
         camera = true;
         ui->camera_frame->setStyleSheet("background-color: rgb(0, 128, 0);");
-        VideoCapture capture(0, CAP_ANY);
+        Pylon::PylonAutoInitTerm autoInitTerm;
+        try
+        {
+            CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
+            /*
+            double minLowerLimit = camera.AutoExposureTimeLowerLimitRaw.GetMin();
+            double maxUpperLimit = camera.AutoExposureTimeUpperLimitRaw.GetMax();
+            camera.AutoExposureTimeLowerLimitRaw.SetValue(minLowerLimit);
+            camera.AutoExposureTimeUpperLimitRaw.SetValue(maxUpperLimit);
+            // Set the target brightness value to 128
+            camera.AutoTargetValue.SetValue(128);
+            // Select auto function ROI 1
+            camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+            // Enable the 'Intensity' auto function (Gain Auto + Exposure Auto)
+            // for the auto function ROI selected
+            camera.AutoFunctionAOIUsageIntensity.SetValue(true);
+            // Enable Exposure Auto by setting the operating mode to Continuous
+            camera.ExposureAuto.SetValue(ExposureAuto_Continuous);
+            */
+            GenApi::INodeMap& nodemap = camera.GetNodeMap();
+            camera.Open();
+            GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+            GenApi::CIntegerPtr height = nodemap.GetNode("Height");
 
-            if (!capture.isOpened())
+            camera.MaxNumBuffer = 5;
+
+            CImageFormatConverter formatConverter;
+            formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+
+            CPylonImage pylonImage;
+            Mat openCvImage;
+
+            Size frameSize = Size((int)width->GetValue(), (int)height->GetValue());
+
+            camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
+
+            CGrabResultPtr ptrGrabResult;
+            namedWindow("Camera feed", 1);
+            while(camera.IsGrabbing())
             {
-                cout << "could not open camera" << endl;
-                return;
-            }
+                camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
 
-            Size frame = Size((int)capture.get(CAP_PROP_FRAME_WIDTH), (int)capture.get(CAP_PROP_FRAME_HEIGHT));
-
-            namedWindow("Camera feed", WINDOW_AUTOSIZE);
-            moveWindow("Camera feed", 400, 0);
-
-            Mat window;
-            for(;;)
-            {
-                capture >> window;
-
-                if (window.empty())
+                if(ptrGrabResult->GrabSucceeded())
                 {
-                    cout << "empty frame" << endl;
-                    break;
+                    formatConverter.Convert(pylonImage, ptrGrabResult);
+                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
                 }
-
-                imshow("Camera feed", window);
-
-                char c = (char)waitKey(2 );
-                if (c == 27) break;
+                imshow("Camera feed", openCvImage);
             }
-            destroyAllWindows();
-            camera = false;
-            ui->camera_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
+        }
+        catch (const GenericException &e)
+        {
+                    // Error handling
+                    cerr << "An exception occurred." << endl
+                        << e.GetDescription() << endl;
+        }
     }
     else
     {
         camera = false;
         ui->camera_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
     }
-/*
-    if(camera)
-    {
-
-
-                uint video;
-                glGenTextures(1,&video);
-                glBindTexture(GL_TEXTURE_2D, video);
-                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-
-               // namedWindow("window");
-                //imshow("window",window);
-                //Mat signedMat;
-                //window.convertTo(signedMat, CV_8SC1);
-                //QByteArray arr = QByteArray::fromRawData((char*)signedMat.data,sizeof(signedMat.size));
-
-                //window.convertTo(win,CV_8U);
-
-
-                //QPainter painter);
-                //painter.drawPixmap(10, 10, pix);
-
-
-
-                waitKey(1);
-
-
-
-            //}
-        }
-    }*/
 
 }
 
 void MainWindow::on_robotButton_clicked()
 {
     string hostname = "192.168.250.1";
+
     RTDEControlInterface rtde_control(hostname);
     RTDEReceiveInterface rtde_receive(hostname);
 
@@ -157,7 +150,7 @@ void MainWindow::on_robotButton_clicked()
     {
         qDebug() << joint_positions.at(i) << " ";
     }
-    joint_positions.at(0)=joint_positions.at(0)+0.5;
+    /*joint_positions.at(0)=joint_positions.at(0)-0.5;
 
-    rtde_control.moveJ(joint_positions);
+    rtde_control.moveJ(joint_positions);*/
 }

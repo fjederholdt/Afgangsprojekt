@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDebug>
+
 #include <bits/stdc++.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -13,7 +14,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
+
 #include <boost/filesystem.hpp>
+
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -24,11 +27,16 @@
 #include <opencv2/aruco/charuco.hpp>
 #include <opencv2/aruco/dictionary.hpp>
 #include <opencv2/opencv.hpp>
+
 #include <pylon/PylonBase.h>
 #include <pylon/PylonIncludes.h>
 #include <pylon/TlFactory.h>
 #include <pylon/ImageFormatConverter.h>
 #include <pylon/PylonImage.h>
+
+#include <ur_rtde/rtde.h>
+#include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
 
 #include "fsclass.h"
 
@@ -63,9 +71,10 @@ private slots:
 private:
     Ui::NyKalibrering *ui;
     std::string path;
+    std::string hostname = "192.168.250.1";
     int image_nr = 0;
-    cv::VideoCapture cam;
     std::string localTime;
+    std::ofstream output_file;
 };
 
 #endif // NYKALIBRERING_H

@@ -30,6 +30,8 @@ private slots:
 
     void on_slet_kalibrering_clicked();
 
+    void on_kalibrere_clicked();
+
 private:
     Ui::Kalibrering *ui;
     std::string folderpath;

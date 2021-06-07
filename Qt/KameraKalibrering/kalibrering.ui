@@ -39,8 +39,8 @@
   <widget class="QPushButton" name="annuller">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>260</y>
+     <x>90</x>
+     <y>320</y>
      <width>121</width>
      <height>61</height>
     </rect>
@@ -60,6 +60,19 @@
    </property>
    <property name="text">
     <string>Slet kalibrering</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="kalibrere">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>320</y>
+     <width>131</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Kalibrere</string>
    </property>
   </widget>
  </widget>
