@@ -2,6 +2,8 @@
 #include "ui_analyse.h"
 
 using namespace std::filesystem;
+using namespace std;
+using namespace cv;
 
 Analyse::Analyse(QWidget *parent) :
     QDialog(parent),
@@ -26,7 +28,6 @@ void Analyse::setPath(std::string &mainPath)
     ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setShowGrid(false);
-    //path = "/home/andreas/Afgangsprojekt/Qt/KameraKalibrering/Kalibreringer/";
     std::vector<std::string> pathVector;
     std::string sub, suffix;
     int maxCols = 3;
@@ -39,14 +40,23 @@ void Analyse::setPath(std::string &mainPath)
     }
     ui->tableWidget->setRowCount(pathVector.size());
     std::vector<std::string> billedePath;
+    std::string repErrorPath;
+    fstream repin;
     for (size_t i = 0; i < pathVector.size(); i++)
     {
         for(const auto & entry : directory_iterator(path+pathVector.at(i)))
         {
             sub = entry.path();
-            std::size_t found = sub.find_last_of("/");
-            sub = sub.substr(found+1,sub.size());
-            billedePath.push_back(sub);
+            std::size_t found = sub.find_last_of(".");
+            sub = sub.substr(found,sub.size());
+            if(sub == ".png")
+            {
+                billedePath.push_back(sub);
+            }
+            else if(sub == ".txt")
+            {
+                repErrorPath = entry.path();
+            }
         }
         for(int currentCol = 0; currentCol < maxCols; currentCol++)
         {
@@ -70,12 +80,33 @@ void Analyse::setPath(std::string &mainPath)
                 }
                 case 2:
                 {
-                    QTableWidgetItem *item = new QTableWidgetItem();
-                    item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                    item->setText(QString::fromStdString("0.00001"));
-                    item->setTextAlignment(Qt::AlignRight);
-                    ui->tableWidget->setItem(i,2,item);
-                    break;
+                    if(repErrorPath.empty())
+                    {
+                        QTableWidgetItem *item = new QTableWidgetItem();
+                        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+                        item->setText(QString::fromStdString("0.00"));
+                        item->setTextAlignment(Qt::AlignRight);
+                        ui->tableWidget->setItem(i,2,item);
+                        break;
+                    }
+                    else
+                    {
+                        repin.open(repErrorPath, ios::in);
+                        string line, sub;
+                        while(getline(repin, line))
+                        {
+                            size_t found = line.find(":");
+                            sub = line.substr(found+2, line.size());
+                        }
+                        repin.close();
+                        QTableWidgetItem *item = new QTableWidgetItem();
+                        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+                        item->setText(QString::fromStdString(sub));
+                        item->setTextAlignment(Qt::AlignRight);
+                        ui->tableWidget->setItem(i,2,item);
+                        repErrorPath.clear();
+                        break;
+                    }
                 }
             }
         }
@@ -118,16 +149,16 @@ void Analyse::on_test_kalibrering_clicked()
 
 }
 
-/*pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
+pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     viewer->setBackgroundColor (0, 0, 0);
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> rgb(cloud, 0, 0, 255);
     viewer->addPointCloud<pcl::PointXYZ> (cloud, rgb, "sample cloud");
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
     viewer->addCoordinateSystem (1);
-    //viewer->initCameraParameters ();
+    viewer->initCameraParameters ();
     return (viewer);
-}*/
+}
 
 void Analyse::on_visualiser_clicked()
 {

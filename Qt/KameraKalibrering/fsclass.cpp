@@ -1,5 +1,8 @@
 #include "fsclass.h"
 
+using namespace std;
+using namespace cv;
+
 FSClass::FSClass(string fileName, string calibrationDate) {
     _fileName = fileName;
     _calibrationDate = calibrationDate;

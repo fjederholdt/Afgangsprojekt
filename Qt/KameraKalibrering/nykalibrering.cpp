@@ -18,6 +18,7 @@ NyKalibrering::NyKalibrering(QWidget *parent) :
     ui(new Ui::NyKalibrering)
 {
     ui->setupUi(this);
+    ui->listWidget->setSelectionMode(QAbstractItemView::MultiSelection);
 }
 
 NyKalibrering::~NyKalibrering()
@@ -58,8 +59,19 @@ void NyKalibrering::removeList()
 
 void NyKalibrering::on_tag_billede_clicked()
 {
+    string imagenr;
+    if(image_nr < 10)
+    {
+        imagenr = "00"+to_string(image_nr)+".png";
+    }
+    else if(image_nr > 9 && image_nr < 100)
+    {
+        imagenr = "0"+to_string(image_nr)+".png";
+    }
+    else
+        imagenr = to_string(image_nr)+".png";
+
     Pylon::PylonAutoInitTerm autoInitTerm;
-    bool saveImage = true;
     try
     {
         CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
@@ -77,34 +89,36 @@ void NyKalibrering::on_tag_billede_clicked()
         CPylonImage pylonImage;
         Mat openCvImage;
 
-        camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
+        camera.StartGrabbing(100, GrabStrategy_LatestImageOnly);
 
         CGrabResultPtr ptrGrabResult;
-
-        while(camera.IsGrabbing())
+        int wait=0;
+        while(wait == 0)
         {
-            camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
-
-            if(ptrGrabResult->GrabSucceeded())
+            while(camera.IsGrabbing())
             {
-                formatConverter.Convert(pylonImage, ptrGrabResult);
-                openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+                camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
 
-                if(saveImage)
+                if(ptrGrabResult->GrabSucceeded())
                 {
-                    Mat grayImage;
-                    cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                    imwrite(path+"/"+to_string(image_nr)+".png", grayImage);
+                    formatConverter.Convert(pylonImage, ptrGrabResult);
+                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+
+                    namedWindow("Camera feed", 1);
+                    imshow("Camera feed", openCvImage);
+                    wait = waitKey(1);
+                    if (wait > 0)
+                    {
+                        Mat grayImage;
+                        cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+                        imwrite(path+"/"+imagenr, grayImage);
+                        destroyAllWindows();
+                        break;
+                    }
                 }
             }
-            /*namedWindow("Camera feed", 1);
-            imshow("Camera feed", openCvImage);
-            if (waitKey(1) >= 0)
-            {
-                destroyAllWindows();
-                break;
-            }*/
         }
+
     }
     catch (const GenericException &e)
     {
@@ -115,12 +129,12 @@ void NyKalibrering::on_tag_billede_clicked()
 
     RTDEReceiveInterface rtde_receive(hostname);
     std::vector<double> joint_positions = rtde_receive.getActualQ();
-    output_file << to_string(image_nr)+".png,robot:,";
+    output_file << imagenr+",robot:,";
     std::ostream_iterator<double> output_iterator(output_file, ",");
     std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
     output_file << endl;
 
-    addList(to_string(image_nr)+".png");
+    addList(imagenr);
     image_nr++;
 }
 
@@ -223,7 +237,7 @@ vector<Mat> getImages(vector<string> paths){
         Mat img = imread(paths.at(i));
         string sub;
         size_t found = paths.at(i).find_last_of("/");
-        sub = sub.substr(found+1, sub.size());
+        sub = paths.at(i).substr(found+1, paths.at(i).size());
         if (!img.empty())
         {
             images.push_back(img);
@@ -237,10 +251,8 @@ vector<Mat> getImages(vector<string> paths){
 
 void NyKalibrering::on_kalibrere_clicked()
 {
-    ui->listWidget->selectAll();
-
     vector<std::string> pathVector;
-
+    ui->listWidget->selectAll();
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
     for(int i = 0; i < items.size(); i++)
     {
@@ -266,7 +278,7 @@ void NyKalibrering::on_kalibrere_clicked()
                 {
                     row.push_back(word);
                 }
-                if(word.find(".png") == std::string::npos || word.find("robot:") == std::string::npos)
+                if(word.find(".png") == std::string::npos && word.find("robot:") == std::string::npos)
                 {
                     row.push_back(word);
                     rowlength++;
@@ -296,7 +308,9 @@ void NyKalibrering::on_kalibrere_clicked()
 
     fsCamera.writeCamera(cameraMatrix, distCoeffs);
 
-    cout << "repError = " << repError << endl;
+    ofstream repErr;
+    repErr.open(path+"/repError.txt");
+    repErr << "repError: " << repError << endl;
 
     remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
 

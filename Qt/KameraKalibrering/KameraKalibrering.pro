@@ -44,8 +44,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 #INCLUDEPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
 #DEPENDPATH += /usr/local/include/opencv2 $$PWD/../../../../../../opt/pylon/include $$PWD/../../../../../../usr/include/pcl-1.0 $$PWD/../../../../../../usr/include/vtk-7.1 $$PWD/../../../../../../usr/include/eigen3
 #LIBS += -L$$PWD/../../../../../../opt/pylon/lib -L$$PWD/../../../../../../usr/local/lib -lfreetype \
-INCLUDEPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.0 /usr/include/vtk-7.1 /usr/include/eigen3
-DEPENDPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.0 /usr/include/vtk-7.1 /usr/include/eigen3
+INCLUDEPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.10 /usr/include/vtk-7.1 /usr/include/eigen3
+DEPENDPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.10 /usr/include/vtk-7.1 /usr/include/eigen3
 LIBS += -L/opt/pylon/lib -L/usr/local/lib -lfreetype \
 -lpylonbase \
 -lpylonbase-6.1.1 \
@@ -74,24 +74,3 @@ LIBS += -L/opt/pylon/lib -L/usr/local/lib -lfreetype \
 -lopencv_imgproc \
 -lrtde \
 -lpthread
-
-#unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib -lpylonbase \
-#-lpylonutility \
-#-lpylonutility-6.1.1 \
-#-lGenApi_gcc_v3_1_Basler_pylon \
-#-lGCBase_gcc_v3_1_Basler_pylon \
-#-lLog_gcc_v3_1_Basler_pylon \
-#-lMathParser_gcc_v3_1_Basler_pylon \
-#-lXmlParser_gcc_v3_1_Basler_pylon \
-#-lNodeMapData_gcc_v3_1_Basler_pylon \
-
-#INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
-#DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
-
-#unix:!macx: LIBS += -lpylonbase-6.1.1 -lGCBase_gcc_v3_1_Basler_pylon -lpylonutility-6.1.1
-
-#unix:!macx: LIBS += -L$$PWD/../../../../../../opt/pylon/lib/ -lpylonbase-6.1.1
-
-#INCLUDEPATH += $$PWD/../../../../../../opt/pylon/include
-#DEPENDPATH += $$PWD/../../../../../../opt/pylon/include
-

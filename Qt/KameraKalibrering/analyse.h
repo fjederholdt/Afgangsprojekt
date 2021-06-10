@@ -8,16 +8,17 @@
 #include <QHeaderView>
 #include <QFormLayout>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <time.h>
-//#include <pcl/io/pcd_io.h>
-//#include <pcl/visualization/pcl_visualizer.h>
-//#include <pcl/console/parse.h>
-//#include <pcl/point_cloud.h>
-//#include <pcl/point_types.h>
-//#include <pcl/common/angles.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/console/parse.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/common/angles.h>
 //#include <pcl/features/normal_3d.h>
 #include "fsclass.h"
 

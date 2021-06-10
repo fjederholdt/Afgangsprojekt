@@ -13,6 +13,7 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 static bool camera = false;
+static bool robot = false;
 
 class MainWindow : public QMainWindow
 {

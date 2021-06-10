@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <filesystem>
+#include <set>
 #include <string>
 #include <vector>
 #include <time.h>

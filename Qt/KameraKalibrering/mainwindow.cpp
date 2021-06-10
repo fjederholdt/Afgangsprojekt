@@ -29,9 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    ui->camera_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
-    ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
     QFileDialog *folder = new QFileDialog;
     folder->setFileMode(QFileDialog::Directory);
     folder->setOption(QFileDialog::ShowDirsOnly);
@@ -39,8 +36,16 @@ MainWindow::MainWindow(QWidget *parent)
     int result = folder->exec();
     if(result)
     {
+        ui->setupUi(this);
+        ui->camera_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
+        ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
         path = folder->selectedFiles().at(0);
     }
+ /*   else
+    {
+        QMessageBox msg;
+        msg.setText("Ingen mappe valgt, lukker program");
+    }*/
 }
 
 MainWindow::~MainWindow()
@@ -140,17 +145,27 @@ void MainWindow::on_cameraButton_clicked()
 
 void MainWindow::on_robotButton_clicked()
 {
-    string hostname = "192.168.250.1";
-
-    RTDEControlInterface rtde_control(hostname);
-    RTDEReceiveInterface rtde_receive(hostname);
-
-    vector<double> joint_positions = rtde_receive.getActualQ();
-    for (size_t i = 0; i < joint_positions.size(); i++)
+    if(!robot)
     {
-        qDebug() << joint_positions.at(i) << " ";
-    }
+        robot = true;
+        ui->robot_frame->setStyleSheet("background-color: rgb(0, 128, 0);");
+        string hostname = "192.168.250.1";
+
+        RTDEControlInterface rtde_control(hostname);
+        RTDEReceiveInterface rtde_receive(hostname);
+
+        vector<double> joint_positions = rtde_receive.getActualQ();
+        for (size_t i = 0; i < joint_positions.size(); i++)
+        {
+            qDebug() << joint_positions.at(i) << " ";
+        }
     /*joint_positions.at(0)=joint_positions.at(0)-0.5;
 
     rtde_control.moveJ(joint_positions);*/
+    }
+    else
+    {
+        robot = false;
+        ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
+    }
 }

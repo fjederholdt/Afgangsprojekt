@@ -3,11 +3,13 @@
 #include "nykalibrering.h"
 #include "mainwindow.h"
 
+using namespace std::filesystem;
+using namespace cv;
+using namespace std;
+
 const float chessSquareDim = 0.02f;
 const float arucoSquareDim = 0.015f;
 const Size chessboardDim = Size(9, 14);
-
-using namespace std::filesystem;
 
 Kalibrering::Kalibrering(QWidget *parent) :
     QDialog(parent),
@@ -45,7 +47,7 @@ void Kalibrering::on_ny_kalibrering_clicked()
 {
     time_t rawtime;
     time(&rawtime);
-    std::string localTime = asctime(localtime(&rawtime));
+    string localTime = asctime(localtime(&rawtime));
     localTime.pop_back();
     NyKalibrering nyKalibrering;
     nyKalibrering.setModal(true);
@@ -54,12 +56,12 @@ void Kalibrering::on_ny_kalibrering_clicked()
     nyKalibrering.exec();
 
     //efter nyKalibrering er lukket
-    std::vector<std::string> pathVector;
-    std::string sub, suffix;
+    vector<std::string> pathVector;
+    string sub, suffix;
     for(const auto & entry : directory_iterator(folderpath))
     {
         sub = entry.path();
-        std::size_t found = sub.find_last_of("/");
+        size_t found = sub.find_last_of("/");
         sub = sub.substr(found+1,sub.size());
         pathVector.push_back(sub);
     }
@@ -86,7 +88,7 @@ void Kalibrering::removeKalib()
 
 void Kalibrering::on_slet_kalibrering_clicked()
 {
-    vector<std::string> pathVector;
+    vector<string> pathVector;
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
     for(int i = 0; i < items.size(); i++)
         pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
@@ -96,8 +98,8 @@ void Kalibrering::on_slet_kalibrering_clicked()
     }
     removeKalib();
 }
-/*
-double findArucoMarkers(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<Mat>& rvectors, vector<Mat>& tvectors)
+
+double findArucoMarkers2(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<Mat>& rvectors, vector<Mat>& tvectors)
 {
     try
     {
@@ -156,9 +158,10 @@ double findArucoMarkers(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs,
     return 0;
 }
 
-void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2){
+void remapping2(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2)
+{
     Mat view, rview;
-    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_16SC2, map1, map2);
+    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         view = *iter;
@@ -166,14 +169,15 @@ void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoef
     }
 }
 
-vector<Mat> getImages(vector<string> paths){
+vector<Mat> getImages2(vector<string> paths)
+{
     vector<Mat> images;
     for (size_t i = 0; i < paths.size(); i++)
     {
         Mat img = imread(paths.at(i));
         string sub;
         size_t found = paths.at(i).find_last_of("/");
-        sub = sub.substr(found+1, sub.size());
+        sub = paths.at(i).substr(found+1, paths.at(i).size());
         if (!img.empty())
         {
             images.push_back(img);
@@ -185,96 +189,127 @@ vector<Mat> getImages(vector<string> paths){
     return images;
 }
 
-
-    vector<std::string> pathVector;
-
-    for(int i = 0; i < items.size(); i++)
-    {
-        pathVector.push_back(path+"/"+items.at(i)->text().toStdString());
-    }
-
-    fstream fin;
-    fin.open(path+"/robotPoses.csv", ios::in);
-    vector<string> row;
-    string line, word;
-    vector<vector<long double>> robotPoses;
-    while (robotPoses.size() < pathVector.size())
-    {
-        row.clear();
-        vector<long double> pose;
-        getline(fin, line);
-        stringstream s(line);
-        int rowlength = 0;
-        while(getline(s, word, ',')){
-            for(int i = 0; i < items.size(); i++)
-            {
-                if(word.find(".png"))
-                {
-                    row.push_back(word);
-                }
-                if(word.find(".png") == std::string::npos || word.find("robot:") == std::string::npos)
-                {
-                    row.push_back(word);
-                    rowlength++;
-                }
-                else
-                    continue;
-            }
-
-        }
-        for	(int i=0; i<rowlength; i++){
-            pose.push_back(stold(row.at(i)));
-        }
-        robotPoses.push_back(pose);
-    }
-
-    vector<Mat> images = getImages(pathVector);
-
-    FSClass fsCamera(path+"/cameraData.yml", localTime);
-    FSClass fsRobot(path+"/robotData.yml", localTime);
-    FSClass fsHandEye(path+"/handEyeData.yml", localTime);
-
-    const Size imageSize = Size(images.at(0).rows, images.at(0).cols);
-    Mat cameraMatrix, distCoeffs, map1, map2;
-    vector<Mat> rvectors, tvectors;
-
-    double repError = findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
-
-    fsCamera.writeCamera(cameraMatrix, distCoeffs);
-
-    cout << "repError = " << repError << endl;
-
-    remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
-
-    findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
-
-    vector<Mat> rmVec;
-    vector<Mat> tmVec;
-    for (size_t i = 0; i < robotPoses.size(); i++)
-    {
-        DHParams dhp(robotPoses.at(i));
-        dhp.calculateDH();
-        rmVec.push_back(dhp.getRM());
-        tmVec.push_back(dhp.getTM());
-    }
-
-    Mat cam2GripRM, cam2GripTM;
-    calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
-    fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
-
-    QMessageBox msg;
-    msg.setText("Kalibrering er færdig");
-    int retur = msg.exec();
-
-    if(retur == QMessageBox::Ok)
-        NyKalibrering::close();
-}*/
 void Kalibrering::on_kalibrere_clicked()
 {
-    vector<std::string> pathVector;
+    vector<std::string> billeder;
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
-    for(int i = 0; i < items.size(); i++)
-        pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
+    if(!items.empty())
+    {
+        try
+        {
+            string time = items.at(0)->text().toStdString();
+            string billedePath = folderpath+time;
+            string robotPosesCSV = billedePath+"/robotPoses.csv";
+            set<path> sorted;
+            for(const auto & entry : directory_iterator(billedePath))
+            {
+                string sub = entry.path();
+                size_t found = sub.find_last_of(".");
+                sub = sub.substr(found,sub.size());
+                if(sub == ".png")
+                {
+                    sorted.insert(entry.path());
+                }
+            }
+            for (auto &filename : sorted )
+            {
+                billeder.push_back(filename.c_str());
+            }
+
+            vector<Mat> images = getImages2(billeder);
+            fstream fin;
+            fin.open(robotPosesCSV, ios::in);
+            vector<string> row;
+            string line, word;
+            vector<vector<long double>> robotPoses;
+            while (robotPoses.size() < images.size())
+            {
+                row.clear();
+                vector<long double> pose;
+                getline(fin, line);
+                stringstream s(line);
+                string png;
+                bool pngFound = false;
+                while(getline(s, word, ','))
+                {
+                    if (!pngFound)
+                    {
+                        size_t found = word.find(".png");
+                        if(found != string::npos)
+                        {
+                            png = billedePath+"/"+word;
+                            for(size_t i = 0; i < billeder.size(); i++)
+                            {
+                                if(png == billeder.at(i))
+                                    pngFound = true;
+                            }
+                        }
+                    }
+                    size_t foundPng = word.find(".png");
+                    size_t foundRobot = word.find("robot");
+                    if(foundPng == std::string::npos && foundRobot == std::string::npos)
+                    {
+                        if(pngFound)
+                            row.push_back(word);
+                    }
+                    else
+                        continue;
+                }
+                if(!row.empty())
+                {
+                    for	(size_t i = 0; i < row.size(); i++)
+                    {
+                        pose.push_back(stold(row.at(i)));
+                    }
+                    robotPoses.push_back(pose);
+                }
+            }
+
+            FSClass fsCamera(billedePath+"/cameraData.yml", time);
+            FSClass fsRobot(billedePath+"/robotData.yml", time);
+            FSClass fsHandEye(billedePath+"/handEyeData.yml", time);
+
+            const Size imageSize = Size(images.at(0).rows, images.at(0).cols);
+            Mat cameraMatrix, distCoeffs, map1, map2;
+            vector<Mat> rvectors, tvectors;
+
+            double repError = findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
+
+            fsCamera.writeCamera(cameraMatrix, distCoeffs);
+
+            ofstream repErr;
+            repErr.open(billedePath+"/repError.txt");
+            repErr << "repError: " << repError << endl;
+
+            remapping2(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
+
+            findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
+
+            vector<Mat> rmVec;
+            vector<Mat> tmVec;
+            for (size_t i = 0; i < robotPoses.size(); i++)
+            {
+                DHParams dhp(robotPoses.at(i));
+                dhp.calculateDH();
+                rmVec.push_back(dhp.getRM());
+                tmVec.push_back(dhp.getTM());
+            }
+
+            Mat cam2GripRM, cam2GripTM;
+            calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
+            fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
+        }
+        catch (Exception& e)
+        {
+            qDebug() << "Exception thrown: " << e.what();
+        }
+    }
+    else
+    {
+        QMessageBox msg;
+        msg.setText("Ingen Kalibrering er valgt");
+        msg.exec();
+    }
 
 }
 
