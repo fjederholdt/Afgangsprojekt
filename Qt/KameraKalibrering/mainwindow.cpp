@@ -112,10 +112,10 @@ void MainWindow::on_cameraButton_clicked()
 
             Size frameSize = Size((int)width->GetValue(), (int)height->GetValue());
 
-            camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
+            camera.StartGrabbing(100, GrabStrategy_LatestImageOnly);
 
             CGrabResultPtr ptrGrabResult;
-            namedWindow("Camera feed", 1);
+
             while(camera.IsGrabbing())
             {
                 camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
@@ -124,8 +124,9 @@ void MainWindow::on_cameraButton_clicked()
                 {
                     formatConverter.Convert(pylonImage, ptrGrabResult);
                     openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+                    namedWindow("Camera feed", 1);
+                    imshow("Camera feed", openCvImage);
                 }
-                imshow("Camera feed", openCvImage);
             }
         }
         catch (const GenericException &e)

@@ -78,6 +78,7 @@ void NyKalibrering::on_tag_billede_clicked()
 
         GenApi::INodeMap& nodemap = camera.GetNodeMap();
         camera.Open();
+
         GenApi::CIntegerPtr width = nodemap.GetNode("Width");
         GenApi::CIntegerPtr height = nodemap.GetNode("Height");
 
@@ -106,19 +107,24 @@ void NyKalibrering::on_tag_billede_clicked()
 
                     namedWindow("Camera feed", 1);
                     imshow("Camera feed", openCvImage);
-                    wait = waitKey(1);
-                    if (wait > 0)
+                    wait = waitKey(0);
+                    if (wait)
                     {
-                        Mat grayImage;
+                        Mat grayImage, gausmask, dst;
                         cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                        imwrite(path+"/"+imagenr, grayImage);
-                        destroyAllWindows();
+                        double alpha = 0.5;
+                        double beta = (1.0-alpha);
+                        gausmask = grayImage.clone();
+                        GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
+                        gausmask -= grayImage;
+                        addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
+                        imwrite(path+"/"+imagenr, dst);
+                        //destroyAllWindows();
                         break;
                     }
                 }
             }
         }
-
     }
     catch (const GenericException &e)
     {
@@ -351,5 +357,13 @@ void NyKalibrering::on_annuller_clicked()
         boost::filesystem::remove_all(path);
         NyKalibrering::close();
     }
+}
+
+
+void NyKalibrering::on_auto_billede_clicked()
+{
+    RTDEReceiveInterface rtde_receive(hostname);
+    std::vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
+
 }
 

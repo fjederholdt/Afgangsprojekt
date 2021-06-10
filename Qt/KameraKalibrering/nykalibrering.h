@@ -68,6 +68,8 @@ private slots:
 
     void on_annuller_clicked();
 
+    void on_auto_billede_clicked();
+
 private:
     Ui::NyKalibrering *ui;
     std::string path;
