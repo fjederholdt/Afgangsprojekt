@@ -54,6 +54,7 @@ public:
     void addList(std::string strItem);
     void removeList();
     void setPath(std::string &kalibpath);
+    void tagBillede();
 
 private slots:
     void on_tag_billede_clicked();

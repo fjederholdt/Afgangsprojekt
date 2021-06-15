@@ -166,6 +166,7 @@ void remapping2(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoe
     {
         view = *iter;
         remap(view, rview, map1, map2, INTER_LINEAR);
+        imshow("test", rview);
     }
 }
 
@@ -241,7 +242,10 @@ void Kalibrering::on_kalibrere_clicked()
                             for(size_t i = 0; i < billeder.size(); i++)
                             {
                                 if(png == billeder.at(i))
+                                {
                                     pngFound = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -252,8 +256,6 @@ void Kalibrering::on_kalibrere_clicked()
                         if(pngFound)
                             row.push_back(word);
                     }
-                    else
-                        continue;
                 }
                 if(!row.empty())
                 {
@@ -298,6 +300,10 @@ void Kalibrering::on_kalibrere_clicked()
             Mat cam2GripRM, cam2GripTM;
             calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
             fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
+
+            QMessageBox msg;
+            msg.setText("Kalibrering er færdig");
+            msg.exec();
         }
         catch (Exception& e)
         {

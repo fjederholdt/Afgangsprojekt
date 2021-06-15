@@ -112,14 +112,14 @@ void NyKalibrering::on_tag_billede_clicked()
                     {
                         Mat grayImage, gausmask, dst;
                         cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                        double alpha = 0.5;
-                        double beta = (1.0-alpha);
-                        gausmask = grayImage.clone();
-                        GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
-                        gausmask -= grayImage;
-                        addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
-                        imwrite(path+"/"+imagenr, dst);
-                        //destroyAllWindows();
+                        //double alpha = 0.5;
+                        //double beta = (1.0-alpha);
+                        //gausmask = grayImage.clone();
+                        //GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
+                        //gausmask -= grayImage;
+                        //addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
+                        imwrite(path+"/"+imagenr, grayImage);
+                        destroyAllWindows();
                         break;
                     }
                 }
@@ -228,7 +228,7 @@ double findArucoMarkers(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs,
 
 void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2){
     Mat view, rview;
-    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_16SC2, map1, map2);
+    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         view = *iter;
@@ -257,12 +257,13 @@ vector<Mat> getImages(vector<string> paths){
 
 void NyKalibrering::on_kalibrere_clicked()
 {
-    vector<std::string> pathVector;
+    output_file.close();
+    vector<std::string> billeder;
     ui->listWidget->selectAll();
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
     for(int i = 0; i < items.size(); i++)
     {
-        pathVector.push_back(path+"/"+items.at(i)->text().toStdString());
+        billeder.push_back(path+"/"+items.at(i)->text().toStdString());
     }
 
     fstream fin;
@@ -270,37 +271,51 @@ void NyKalibrering::on_kalibrere_clicked()
     vector<string> row;
     string line, word;
     vector<vector<long double>> robotPoses;
-    while (robotPoses.size() < pathVector.size())
+    while (robotPoses.size() < billeder.size())
     {
         row.clear();
         vector<long double> pose;
         getline(fin, line);
         stringstream s(line);
-        int rowlength = 0;
-        while(getline(s, word, ',')){
-            for(int i = 0; i < items.size(); i++)
+        string png;
+        bool pngFound = false;
+        while(getline(s, word, ','))
+        {
+            if (!pngFound)
             {
-                if(word.find(".png"))
+                size_t found = word.find(".png");
+                if(found != string::npos)
                 {
-                    row.push_back(word);
+                    png = path+"/"+word;
+                    for(size_t i = 0; i < billeder.size(); i++)
+                    {
+                        if(png == billeder.at(i))
+                        {
+                            pngFound = true;
+                            break;
+                        }
+                    }
                 }
-                if(word.find(".png") == std::string::npos && word.find("robot:") == std::string::npos)
-                {
-                    row.push_back(word);
-                    rowlength++;
-                }
-                else
-                    continue;
             }
-
+            size_t foundPng = word.find(".png");
+            size_t foundRobot = word.find("robot");
+            if(foundPng == std::string::npos && foundRobot == std::string::npos)
+            {
+                if(pngFound)
+                    row.push_back(word);
+            }
         }
-        for	(int i=0; i<rowlength; i++){
-            pose.push_back(stold(row.at(i)));
+        if(!row.empty())
+        {
+            for	(size_t i = 0; i < row.size(); i++)
+            {
+                pose.push_back(stold(row.at(i)));
+            }
+            robotPoses.push_back(pose);
         }
-        robotPoses.push_back(pose);
     }
 
-    vector<Mat> images = getImages(pathVector);
+    vector<Mat> images = getImages(billeder);
 
     FSClass fsCamera(path+"/cameraData.yml", localTime);
     FSClass fsRobot(path+"/robotData.yml", localTime);
@@ -359,11 +374,160 @@ void NyKalibrering::on_annuller_clicked()
     }
 }
 
+void NyKalibrering::tagBillede()
+{
+    string imagenr;
+    if(image_nr < 10)
+    {
+        imagenr = "00"+to_string(image_nr)+".png";
+    }
+    else if(image_nr > 9 && image_nr < 100)
+    {
+        imagenr = "0"+to_string(image_nr)+".png";
+    }
+    else
+        imagenr = to_string(image_nr)+".png";
+
+    Pylon::PylonAutoInitTerm autoInitTerm;
+    try
+    {
+        CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
+
+        GenApi::INodeMap& nodemap = camera.GetNodeMap();
+        camera.Open();
+
+        GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+        GenApi::CIntegerPtr height = nodemap.GetNode("Height");
+
+        camera.MaxNumBuffer = 5;
+
+        CImageFormatConverter formatConverter;
+        formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+
+        CPylonImage pylonImage;
+        Mat openCvImage;
+
+        camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
+
+        CGrabResultPtr ptrGrabResult;
+
+        while(camera.IsGrabbing())
+        {
+            camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
+
+            if(ptrGrabResult->GrabSucceeded())
+            {
+                formatConverter.Convert(pylonImage, ptrGrabResult);
+                openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+
+                Mat grayImage, gausmask, dst;
+                cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+
+               /* double alpha = 1.5;
+                double beta = -0.5;
+
+                GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
+                gausmask = grayImage - gausmask;
+                addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
+*/
+                imwrite(path+"/"+imagenr, grayImage);
+
+                break;
+            }
+        }
+    }
+    catch (const GenericException &e)
+    {
+                // Error handling
+                cerr << "An exception occurred." << endl
+                    << e.GetDescription() << endl;
+    }
+
+    RTDEReceiveInterface rtde_receive(hostname);
+    std::vector<double> joint_positions = rtde_receive.getActualQ();
+    output_file << imagenr+",robot:,";
+    std::ostream_iterator<double> output_iterator(output_file, ",");
+    std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
+    output_file << endl;
+
+    addList(imagenr);
+    image_nr++;
+}
+
 
 void NyKalibrering::on_auto_billede_clicked()
 {
+    RTDEControlInterface rtde_control(hostname);
     RTDEReceiveInterface rtde_receive(hostname);
+    std::vector<double> start_joint_positions;
+    start_joint_positions.push_back(0.105032);
+    start_joint_positions.push_back(-2.43353);
+    start_joint_positions.push_back(-1.9662);
+    start_joint_positions.push_back(-0.28989);
+    start_joint_positions.push_back(1.56231);
+    start_joint_positions.push_back(-0.667773);
+    rtde_control.moveJ(start_joint_positions);
+
     std::vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
+
+    tagBillede();
+    cartesian_positions.at(0) += 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    std::vector<double> joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) += 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(1) += 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) -= 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(0) -= 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) += 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(0) -= 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) -= 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(1) -= 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) += 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(1) -= 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) -= 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(0) += 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) += 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    cartesian_positions.at(0) += 0.1;
+    rtde_control.moveL(cartesian_positions,0.25,1.2,false);
+    tagBillede();
+    joint_positions = rtde_receive.getActualQ();
+    joint_positions.at(5) -= 1.57;
+    rtde_control.moveJ(joint_positions);
+    tagBillede();
+    rtde_control.moveJ(start_joint_positions);
 
 }
 

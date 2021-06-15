@@ -82,23 +82,10 @@ void MainWindow::on_cameraButton_clicked()
         try
         {
             CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
-            /*
-            double minLowerLimit = camera.AutoExposureTimeLowerLimitRaw.GetMin();
-            double maxUpperLimit = camera.AutoExposureTimeUpperLimitRaw.GetMax();
-            camera.AutoExposureTimeLowerLimitRaw.SetValue(minLowerLimit);
-            camera.AutoExposureTimeUpperLimitRaw.SetValue(maxUpperLimit);
-            // Set the target brightness value to 128
-            camera.AutoTargetValue.SetValue(128);
-            // Select auto function ROI 1
-            camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
-            // Enable the 'Intensity' auto function (Gain Auto + Exposure Auto)
-            // for the auto function ROI selected
-            camera.AutoFunctionAOIUsageIntensity.SetValue(true);
-            // Enable Exposure Auto by setting the operating mode to Continuous
-            camera.ExposureAuto.SetValue(ExposureAuto_Continuous);
-            */
+
             GenApi::INodeMap& nodemap = camera.GetNodeMap();
             camera.Open();
+
             GenApi::CIntegerPtr width = nodemap.GetNode("Width");
             GenApi::CIntegerPtr height = nodemap.GetNode("Height");
 

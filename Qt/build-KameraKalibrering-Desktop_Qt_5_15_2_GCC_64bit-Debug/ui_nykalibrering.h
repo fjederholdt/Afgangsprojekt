@@ -35,7 +35,7 @@ public:
     {
         if (NyKalibrering->objectName().isEmpty())
             NyKalibrering->setObjectName(QString::fromUtf8("NyKalibrering"));
-        NyKalibrering->resize(732, 520);
+        NyKalibrering->resize(927, 520);
         tag_billede = new QPushButton(NyKalibrering);
         tag_billede->setObjectName(QString::fromUtf8("tag_billede"));
         tag_billede->setGeometry(QRect(360, 20, 89, 25));

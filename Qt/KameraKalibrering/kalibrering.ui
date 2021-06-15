@@ -75,6 +75,19 @@
     <string>Kalibrere</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>390</y>
+     <width>131</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Remap</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
