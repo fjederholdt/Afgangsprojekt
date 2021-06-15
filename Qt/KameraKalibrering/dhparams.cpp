@@ -6,10 +6,6 @@ using namespace cv;
 
 DHParams::DHParams(vector<long double> jointVals) {
     _jointVals = jointVals;
-    /*for (vector<float>::iterator iter=_jointVals.begin(); iter!=_jointVals.end(); iter++)
-    {
-        cout << "joint values: " << endl << *iter << endl;
-    }*/
 }
 
 DHParams::DHParams(vector<vector<long double>> robotPoses){

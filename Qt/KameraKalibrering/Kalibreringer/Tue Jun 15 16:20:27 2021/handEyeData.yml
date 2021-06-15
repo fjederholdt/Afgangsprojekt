@@ -1,0 +1,17 @@
+%YAML:1.0
+---
+calibrationDate: "Tue Jun 15 16:20:27 2021"
+handEyeRotationMatrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 9.9988567863445366e-01, 3.2527904648844939e-03,
+       1.4766482855086522e-02, -3.9102935914213151e-03,
+       9.9899197453693422e-01, 4.4718501929585944e-02,
+       -1.4606137947688192e-02, -4.4771130932656250e-02,
+       9.9889048777594436e-01 ]
+handEyeTranslationMatrix: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ 0., 0., 0. ]

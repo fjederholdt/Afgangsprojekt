@@ -13,6 +13,7 @@ SOURCES += \
     dhparams.cpp \
     fsclass.cpp \
     kalibrering.cpp \
+    kalibreringsFunktioner.cpp \
     main.cpp \
     mainwindow.cpp \
     nykalibrering.cpp
@@ -22,6 +23,7 @@ HEADERS += \
     dhparams.h \
     fsclass.h \
     kalibrering.h \
+    kalibreringsFunktioner.h \
     mainwindow.h \
     nykalibrering.h
 

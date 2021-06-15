@@ -40,6 +40,7 @@
 
 #include "fsclass.h"
 
+
 namespace Ui {
 class NyKalibrering;
 }
