@@ -56,89 +56,122 @@ void NyKalibrering::removeList()
 
 void NyKalibrering::on_tag_billede_clicked()
 {
+    RTDEReceiveInterface rtde_receive(hostname);
+    vector<string> paths;
+    vector<Mat> images;
+    vector<vector<double>> robotPoses;
     string imagenr;
-    if(image_nr < 10)
+
+    while(true)
     {
-        imagenr = "00"+to_string(image_nr)+".png";
-    }
-    else if(image_nr > 9 && image_nr < 100)
-    {
-        imagenr = "0"+to_string(image_nr)+".png";
-    }
-    else
-        imagenr = to_string(image_nr)+".png";
 
-    Pylon::PylonAutoInitTerm autoInitTerm;
-    try
-    {
-        CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
 
-        GenApi::INodeMap& nodemap = camera.GetNodeMap();
-        camera.Open();
 
-        GenApi::CIntegerPtr width = nodemap.GetNode("Width");
-        GenApi::CIntegerPtr height = nodemap.GetNode("Height");
-
-        camera.MaxNumBuffer = 5;
-
-        CImageFormatConverter formatConverter;
-        formatConverter.OutputPixelFormat = PixelType_BGR8packed;
-
-        CPylonImage pylonImage;
-        Mat openCvImage;
-
-        camera.StartGrabbing(100, GrabStrategy_LatestImageOnly);
-
-        CGrabResultPtr ptrGrabResult;
+        Pylon::PylonAutoInitTerm autoInitTerm;
         int wait=0;
-        while(wait == 0)
+        try
         {
-            while(camera.IsGrabbing())
+            CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
+
+            GenApi::INodeMap& nodemap = camera.GetNodeMap();
+            camera.Open();
+
+            GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+            GenApi::CIntegerPtr height = nodemap.GetNode("Height");
+
+            camera.MaxNumBuffer = 5;
+
+            CImageFormatConverter formatConverter;
+            formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+
+            CPylonImage pylonImage;
+            Mat openCvImage;
+
+
+            CGrabResultPtr ptrGrabResult;
+
+
+            namedWindow("Camera feed", 1);
+
+            while(wait <= 0)
             {
-                camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
+                camera.StartGrabbing(1, GrabStrategy_LatestImageOnly);
 
-                if(ptrGrabResult->GrabSucceeded())
+                while(camera.IsGrabbing())
                 {
-                    formatConverter.Convert(pylonImage, ptrGrabResult);
-                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+                    camera.RetrieveResult(1100, ptrGrabResult, TimeoutHandling_ThrowException);
 
-                    namedWindow("Camera feed", 1);
-                    imshow("Camera feed", openCvImage);
-                    wait = waitKey(0);
-                    if (wait)
+                    if(ptrGrabResult->GrabSucceeded())
                     {
-                        Mat grayImage, gausmask, dst;
-                        cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                        //double alpha = 0.5;
-                        //double beta = (1.0-alpha);
-                        //gausmask = grayImage.clone();
-                        //GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
-                        //gausmask -= grayImage;
-                        //addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
-                        imwrite(path+"/"+imagenr, grayImage);
-                        destroyAllWindows();
-                        break;
+                        formatConverter.Convert(pylonImage, ptrGrabResult);
+                        openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
                     }
+                }
+                Mat grayImage;
+                cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+                imshow("Camera feed", grayImage);
+                wait = waitKey(1);
+                if (wait == 97)
+                {
+                    if(image_nr < 10)
+                    {
+                        imagenr = "00"+to_string(image_nr)+".png";
+                    }
+                    else if(image_nr > 9 && image_nr < 100)
+                    {
+                        imagenr = "0"+to_string(image_nr)+".png";
+                    }
+                    else
+                        imagenr = to_string(image_nr)+".png";
+
+                    images.push_back(grayImage);
+                    paths.push_back(path+"/"+imagenr);
+                    robotPoses.push_back(rtde_receive.getActualQ());
+                    image_nr++;
+                }
+                else if (wait == 27)
+                {
+                    destroyAllWindows();
+                    break;
                 }
             }
         }
+        catch (const GenericException &e)
+        {
+                    // Error handling
+                    cerr << "An exception occurred." << endl
+                        << e.GetDescription() << endl;
+        }
+
+        if(wait == 27)
+            break;
     }
-    catch (const GenericException &e)
+
+    for (size_t i = 0; i < images.size(); i++)
     {
-                // Error handling
-                cerr << "An exception occurred." << endl
-                    << e.GetDescription() << endl;
+        imwrite(paths.at(i), images.at(i));
     }
 
-    RTDEReceiveInterface rtde_receive(hostname);
-    std::vector<double> joint_positions = rtde_receive.getActualQ();
-    output_file << imagenr+",robot:,";
-    std::ostream_iterator<double> output_iterator(output_file, ",");
-    std::copy(joint_positions.begin(), joint_positions.end(), output_iterator);
-    output_file << endl;
+    for(size_t i = 0; i < robotPoses.size(); i++)
+    {
+        if(i < 10)
+        {
+            imagenr = "00"+to_string(i)+".png";
+        }
+        else if(i > 9 && i < 100)
+        {
+            imagenr = "0"+to_string(i)+".png";
+        }
+        else
+            imagenr = to_string(i)+".png";
 
-    addList(imagenr);
-    image_nr++;
+
+        output_file << imagenr+",robot:,";
+        std::ostream_iterator<double> output_iterator(output_file, ",");
+        std::copy(robotPoses.at(i).begin(), robotPoses.at(i).end(), output_iterator);
+        output_file << endl;
+        addList(imagenr);
+    }
 }
 
 
