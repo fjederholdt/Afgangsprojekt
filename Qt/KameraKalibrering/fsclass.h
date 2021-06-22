@@ -14,11 +14,11 @@ public:
     void writeHandEye(cv::Mat rotationMatrix, cv::Mat translationMatrix);
     void writeDate(std::string date);
     void write(cv::Mat data, std::string type);
-    void readCamera(cv::Mat cameraMatrix, cv::Mat distCoeffs);
-    void readRobot(cv::Mat rotationMatrix, cv::Mat translationMatrix);
-    void readHandEye(cv::Mat rotationMatrix, cv::Mat translationMatrix);
-    void readDate(std::string date);
-    void read(cv::Mat cameraMatrix, cv::Mat distCoeffs);
+    void readCamera(cv::Mat& cameraMatrix, cv::Mat& distCoeffs);
+    void readRobot(cv::Mat& rotationMatrix, cv::Mat& translationMatrix);
+    void readHandEye(cv::Mat& rotationMatrix, cv::Mat& translationMatrix);
+    void readDate(std::string& date);
+    void read(cv::Mat& cameraMatrix, cv::Mat& distCoeffs);
     virtual ~FSClass();
 private:
     std::string _fileName, _calibrationDate;

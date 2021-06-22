@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     analyse.cpp \
+    analysefunktioner.cpp \
     dhparams.cpp \
     fsclass.cpp \
     kalibrering.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     analyse.h \
+    analysefunktioner.h \
     dhparams.h \
     fsclass.h \
     kalibrering.h \
@@ -50,8 +52,8 @@ INCLUDEPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.
 DEPENDPATH += /usr/local/include/opencv2 /opt/pylon/include /usr/include/pcl-1.10 /usr/include/vtk-7.1 /usr/include/eigen3
 LIBS += -L/opt/pylon/lib -L/usr/local/lib -lfreetype \
 -lpylonbase \
--lpylonbase-6.1.1 \
--lpylonutility-6.1.1 \
+-lpylonbase-6.2.0 \
+-lpylonutility-6.2.0 \
 -lpcl_common \
 -lpcl_io \
 -lpcl_visualization \

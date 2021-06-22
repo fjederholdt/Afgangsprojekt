@@ -26,6 +26,7 @@ public:
     QPushButton *anvend_valgte_kalibrering;
     QPushButton *test_kalibrering;
     QPushButton *annuller;
+    QPushButton *pushButton;
 
     void setupUi(QDialog *Analyse)
     {
@@ -50,6 +51,9 @@ public:
         annuller = new QPushButton(Analyse);
         annuller->setObjectName(QString::fromUtf8("annuller"));
         annuller->setGeometry(QRect(240, 380, 89, 25));
+        pushButton = new QPushButton(Analyse);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(370, 330, 141, 21));
 
         retranslateUi(Analyse);
 
@@ -63,6 +67,7 @@ public:
         anvend_valgte_kalibrering->setText(QCoreApplication::translate("Analyse", "Anvned valgte kalibrering", nullptr));
         test_kalibrering->setText(QCoreApplication::translate("Analyse", "Test kalibrering", nullptr));
         annuller->setText(QCoreApplication::translate("Analyse", "F\303\246rdig", nullptr));
+        pushButton->setText(QCoreApplication::translate("Analyse", "Hvis Charuco", nullptr));
     } // retranslateUi
 
 };

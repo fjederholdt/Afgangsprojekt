@@ -51,34 +51,34 @@ void FSClass::write(Mat data, string type){
         fs << "handEyeTranslationMatrix" << data;
 }
 
-void FSClass::readCamera(Mat cameraMatrix, Mat distCoeffs){
+void FSClass::readCamera(Mat& cameraMatrix, Mat& distCoeffs){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["cameraMatrix"] >> cameraMatrix;
     fs["distCoeffs"] >> distCoeffs;
     fs.release();
 }
 
-void FSClass::readRobot(Mat rotationMatrix, Mat translationMatrix){
+void FSClass::readRobot(Mat& rotationMatrix, Mat& translationMatrix){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["robotRotationMatrix"] >> rotationMatrix;
     fs["robotTranslationMatrix"] >> translationMatrix;
     fs.release();
 }
 
-void FSClass::readHandEye(Mat rotationMatrix, Mat translationMatrix){
+void FSClass::readHandEye(Mat& rotationMatrix, Mat& translationMatrix){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["handEyeRotationMatrix"] >> rotationMatrix;
     fs["handEyeTranslationMatrix"] >> translationMatrix;
     fs.release();
 }
 
-void FSClass::readDate(string date){
+void FSClass::readDate(string& date){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["calibrationDate"] >> date;
     fs.release();
 }
 
-void FSClass::read(Mat cameraMatrix, Mat distCoeffs){
+void FSClass::read(Mat &cameraMatrix, Mat &distCoeffs){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["cameraMatrix"] >> cameraMatrix;
     fs["distCoeffs"] >> distCoeffs;

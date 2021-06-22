@@ -284,7 +284,10 @@ void NyKalibrering::on_kalibrere_clicked()
             repErr.open(path+"/repError.txt");
             repErr << "repError: " << repError << endl;
 
-            remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
+            vector<Mat> rview;
+            remapping(images, cameraMatrix, distCoeffs, map1, map2, rview);
+
+
 
             CharucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
             //findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
@@ -487,5 +490,65 @@ void NyKalibrering::on_auto_billede_clicked()
     tagBillede();
     rtde_control.moveJ(start_joint_positions);
 
+}
+
+
+void NyKalibrering::on_Charucomarkers_clicked()
+{
+    const float chessSquareDim = 0.02f;
+    const float arucoSquareDim = 0.015f;
+    const Size chessboardDim = Size(9, 14);
+
+    vector<std::string> billeder;
+    ui->listWidget->selectAll();
+    QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
+    Mat grayImage;
+
+    if (!items.empty())
+    {
+        try
+        {
+            for(int i = 0; i < items.size(); i++)
+            {
+                billeder.push_back(path+"/"+items.at(i)->text().toStdString());
+            }
+            vector<Mat> grayImages = getImages(billeder);
+
+            Ptr<aruco::DetectorParameters> params2 = aruco::DetectorParameters::create();
+            Ptr<aruco::Dictionary> dictionary2 = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
+            Ptr<aruco::CharucoBoard> board2 = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary2);
+            //params2->cornerRefinementMethod = cv::aruco::CORNER_REFINE_NONE;
+
+
+            std::vector<int> markerIds2;
+            std::vector<std::vector<cv::Point2f> > markerCorners2;
+
+            std::vector<cv::Point2f> charucoCorners2;
+            std::vector<int> charucoIds2;
+
+
+            for(vector<Mat>::iterator iter = grayImages.begin(); iter != grayImages.end(); iter++)
+            {
+                Mat inputImage = *iter;
+                cv::aruco::detectMarkers(inputImage, board2->dictionary, markerCorners2, markerIds2, params2);
+                if (markerIds2.size() > 0)
+                {
+                    cv::aruco::drawDetectedMarkers(inputImage, markerCorners2, markerIds2, cv::Scalar(255,0,0));
+                    std::vector<cv::Point2f> charucoCorners;
+                    std::vector<int> charucoIds;
+                    cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImages, board2, charucoCorners, charucoIds);
+                            // if at least one charuco corner detected
+                    if (charucoIds.size() > 0){
+                        cv::aruco::drawDetectedCornersCharuco(inputImage, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));
+                    }
+                }
+                namedWindow("charucoMarkers", 1);
+                cv::imshow("charucoMarkers", inputImage);
+                waitKey(0);
+
+            }
+        }
+    catch (Exception& e){}
+    }
 }
 

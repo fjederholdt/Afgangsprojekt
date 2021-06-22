@@ -12,7 +12,8 @@
 
     void CharucoBoardPose(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds, std::vector<cv::Mat>& rvectors, std::vector<cv::Mat>& tvectors);
     double calibrateCharuco(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds);
-    void remapping(std::vector<cv::Mat>& images, const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs,const cv::Size imageSize, cv::Mat& map1, cv::Mat& map2);
+    void remapping(std::vector<cv::Mat>& images, const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs, cv::Mat& map1, cv::Mat& map2, std::vector<cv::Mat>& rview);
     std::vector<cv::Mat> getImages(std::vector<std::string> paths);
+    void caliSharpnes(std::vector<cv::Mat> rview);
 
 #endif // KALIBRERINGSFUNKTIONER_H

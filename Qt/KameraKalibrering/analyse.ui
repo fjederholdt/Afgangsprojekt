@@ -84,6 +84,19 @@
     <string>Færdig</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>330</y>
+     <width>141</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Hvis Charuco</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

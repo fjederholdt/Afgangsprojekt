@@ -20,7 +20,14 @@
 #include <pcl/point_types.h>
 #include <pcl/common/angles.h>
 //#include <pcl/features/normal_3d.h>
-#include "fsclass.h"
+#include <vector>
+#include <opencv2/core.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/aruco.hpp>
+#include <opencv2/aruco/charuco.hpp>
+#include <opencv2/aruco/dictionary.hpp>
+#include <opencv2/opencv.hpp>
+#include <string>
 
 namespace Ui {
 class Analyse;
@@ -44,9 +51,12 @@ private slots:
 
     void on_annuller_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::Analyse *ui;
     std::string path;
+
 };
 
 #endif // ANALYSE_H
