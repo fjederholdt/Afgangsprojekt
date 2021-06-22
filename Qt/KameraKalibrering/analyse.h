@@ -7,12 +7,19 @@
 #include <QApplication>
 #include <QHeaderView>
 #include <QFormLayout>
+#include <QPixmap>
+#include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <time.h>
+#include <stdio.h>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/core/matx.hpp>
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/parse.h>
@@ -20,7 +27,17 @@
 #include <pcl/point_types.h>
 #include <pcl/common/angles.h>
 //#include <pcl/features/normal_3d.h>
-#include "fsclass.h"
+
+#include <pylon/PylonBase.h>
+#include <pylon/PylonIncludes.h>
+#include <pylon/TlFactory.h>
+#include <pylon/ImageFormatConverter.h>
+#include <pylon/PylonImage.h>
+
+#include <ur_rtde/rtde.h>
+#include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
+
 
 namespace Ui {
 class Analyse;
@@ -47,6 +64,7 @@ private slots:
 private:
     Ui::Analyse *ui;
     std::string path;
+    std::string hostname = "192.168.250.1";
 };
 
 #endif // ANALYSE_H

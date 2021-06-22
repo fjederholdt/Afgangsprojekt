@@ -7,7 +7,7 @@ const float chessSquareDim = 0.02f;
 const float arucoSquareDim = 0.015f;
 const Size chessboardDim = Size(9, 14);
 
-double calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds)
+vector<double> calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds)
 {
     Ptr<aruco::DetectorParameters> params = aruco::DetectorParameters::create();
     Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
@@ -32,7 +32,9 @@ double calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs,
         }
     }
 
-    return aruco::calibrateCameraCharuco(charucoCorners, charucoIds, board, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs);
+    vector<double> stdDevInt, stdDevExt, repErrors;
+    aruco::calibrateCameraCharuco(charucoCorners, charucoIds, board, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, stdDevInt, stdDevExt, repErrors);
+    return repErrors;
 }
 
 void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds, vector<Mat>& rvectors, vector<Mat>& tvectors)
@@ -44,28 +46,27 @@ void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         Mat inputImage = *iter;
-        cout << "flæskø" << endl;
         aruco::drawDetectedCornersCharuco(inputImage, charucoCorners.at(i), charucoIds.at(i));
-        cout << "stegø" << endl;
         Vec3d rvec, tvec;
-        Mat rMat, tMat;
         bool valid = aruco::estimatePoseCharucoBoard(charucoCorners.at(i), charucoIds.at(i), board, cameraMatrix, distCoeffs, rvec, tvec);
-        cout << "sammichø" << endl;
         if (valid)
         {
             aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
-            cout << "flæsk" << endl;
+            Mat rMat;
+            Mat tMat(3,1,CV_64F);
             Rodrigues(rvec, rMat);
-            Rodrigues(tvec, tMat);
-            cout << "steg" << endl;
             rvectors.push_back(rMat);
+            tMat.at <double>(0,0) = tvec[0];
+            tMat.at <double>(1,0) = tvec[1];
+            tMat.at <double>(2,0) = tvec[2];
             tvectors.push_back(tMat);
         }
         i++;
     }
 }
 
-void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2){
+void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2)
+{
     Mat view, rview;
     initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
@@ -75,11 +76,12 @@ void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoef
     }
 }
 
-vector<Mat> getImages(vector<string> paths){
+vector<Mat> getImages(vector<string> paths)
+{
     vector<Mat> images;
     for (size_t i = 0; i < paths.size(); i++)
     {
-        Mat img = imread(paths.at(i));
+        Mat img = imread(paths.at(i), IMREAD_GRAYSCALE);
         string sub;
         size_t found = paths.at(i).find_last_of("/");
         sub = paths.at(i).substr(found+1, paths.at(i).size());

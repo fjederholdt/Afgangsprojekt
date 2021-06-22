@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
+    <width>1066</width>
     <height>489</height>
    </rect>
   </property>
@@ -82,6 +82,57 @@
    </property>
    <property name="text">
     <string>Færdig</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="imageLabel">
+   <property name="geometry">
+    <rect>
+     <x>666</x>
+     <y>60</y>
+     <width>291</width>
+     <height>291</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>3</number>
+   </property>
+   <property name="midLineWidth">
+    <number>0</number>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>20</y>
+     <width>201</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>graf over reprojection errors</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="maxRep">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>380</y>
+     <width>271</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Max reperror:</string>
    </property>
   </widget>
  </widget>

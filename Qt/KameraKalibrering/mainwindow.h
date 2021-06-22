@@ -34,7 +34,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QPixmap pix;
     QString path;
 
 };

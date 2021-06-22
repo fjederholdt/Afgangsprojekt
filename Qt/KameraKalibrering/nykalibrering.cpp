@@ -61,90 +61,106 @@ void NyKalibrering::on_tag_billede_clicked()
     vector<Mat> images;
     vector<vector<double>> robotPoses;
     string imagenr;
+    int cameraExposure = 60000;
 
-    while(true)
+    Pylon::PylonAutoInitTerm autoInitTerm;
+
+    try
     {
+        CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
 
+        GenApi::INodeMap& nodemap = camera.GetNodeMap();
+        camera.Open();
 
+        GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+        GenApi::CIntegerPtr height = nodemap.GetNode("Height");
 
-        Pylon::PylonAutoInitTerm autoInitTerm;
-        int wait=0;
-        try
+        camera.MaxNumBuffer = 5;
+
+        CImageFormatConverter formatConverter;
+        formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+
+        CPylonImage pylonImage;
+        Mat openCvImage;
+        GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
+        if ( GenApi::IsWritable( exposureAuto))
         {
-            CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
+            exposureAuto->FromString("Off");
+        }
 
-            GenApi::INodeMap& nodemap = camera.GetNodeMap();
-            camera.Open();
-
-            GenApi::CIntegerPtr width = nodemap.GetNode("Width");
-            GenApi::CIntegerPtr height = nodemap.GetNode("Height");
-
-            camera.MaxNumBuffer = 5;
-
-            CImageFormatConverter formatConverter;
-            formatConverter.OutputPixelFormat = PixelType_BGR8packed;
-
-            CPylonImage pylonImage;
-            Mat openCvImage;
-
-
-            CGrabResultPtr ptrGrabResult;
-
-
-            namedWindow("Camera feed", 1);
-
-            while(wait <= 0)
+        GenApi::CFloatPtr exposureTime = nodemap.GetNode("ExposureTime");
+        if(exposureTime.IsValid())
+        {
+            if(cameraExposure >= exposureTime->GetMin() && cameraExposure <= exposureTime->GetMax())
             {
-                camera.StartGrabbing(1, GrabStrategy_LatestImageOnly);
-
-                while(camera.IsGrabbing())
-                {
-                    camera.RetrieveResult(1100, ptrGrabResult, TimeoutHandling_ThrowException);
-
-                    if(ptrGrabResult->GrabSucceeded())
-                    {
-                        formatConverter.Convert(pylonImage, ptrGrabResult);
-                        openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
-                    }
-                }
-                Mat grayImage;
-                cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                imshow("Camera feed", grayImage);
-                wait = waitKey(1);
-                if (wait == 97)
-                {
-                    if(image_nr < 10)
-                    {
-                        imagenr = "00"+to_string(image_nr)+".png";
-                    }
-                    else if(image_nr > 9 && image_nr < 100)
-                    {
-                        imagenr = "0"+to_string(image_nr)+".png";
-                    }
-                    else
-                        imagenr = to_string(image_nr)+".png";
-
-                    images.push_back(grayImage);
-                    paths.push_back(path+"/"+imagenr);
-                    robotPoses.push_back(rtde_receive.getActualQ());
-                    image_nr++;
-                }
-                else if (wait == 27)
-                {
-                    destroyAllWindows();
-                    break;
-                }
+                exposureTime->SetValue(cameraExposure);
+            }
+            else
+            {
+                exposureTime->SetValue(exposureTime->GetMin());
             }
         }
-        catch (const GenericException &e)
+        else
         {
-                    // Error handling
-                    cerr << "An exception occurred." << endl
-                        << e.GetDescription() << endl;
+            std::cout << ">> Failed to set exposure value." << std::endl;
         }
 
-        if(wait == 27)
-            break;
+        CGrabResultPtr ptrGrabResult;
+
+        camera.StartGrabbing(GrabStrategy_LatestImageOnly);
+
+        namedWindow("Camera feed", 1);
+        bool feeding = true;
+        while(feeding)
+        {
+            while(camera.IsGrabbing())
+            {
+                camera.RetrieveResult(1100, ptrGrabResult, TimeoutHandling_ThrowException);
+
+                if(ptrGrabResult->GrabSucceeded())
+                {
+                    formatConverter.Convert(pylonImage, ptrGrabResult);
+                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+                }
+
+
+            Mat grayImage;
+            cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+            imshow("Camera feed", grayImage);
+
+            int wait = waitKey(1);
+            if (wait == 97)
+            {
+                if(image_nr < 10)
+                {
+                    imagenr = "00"+to_string(image_nr)+".png";
+                }
+                else if(image_nr > 9 && image_nr < 100)
+                {
+                    imagenr = "0"+to_string(image_nr)+".png";
+                }
+                else
+                    imagenr = to_string(image_nr)+".png";
+
+                images.push_back(grayImage);
+                paths.push_back(path+"/"+imagenr);
+                robotPoses.push_back(rtde_receive.getActualQ());
+                image_nr++;
+            }
+            else if (wait == 27)
+            {
+                destroyAllWindows();
+                feeding = false;
+                break;
+            }
+            }
+        }
+    }
+    catch (const GenericException &e)
+    {
+        //Error handling
+        cerr << "An exception occurred." << endl
+            << e.GetDescription() << endl;
     }
 
     for (size_t i = 0; i < images.size(); i++)
@@ -275,14 +291,14 @@ void NyKalibrering::on_kalibrere_clicked()
             vector<vector<int>> charucoIds;
             vector<vector<Point2f>> charucoCorners;
 
-            double repError = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
+            vector<double> repError = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
                     //findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
             fsCamera.writeCamera(cameraMatrix, distCoeffs);
 
             ofstream repErr;
             repErr.open(path+"/repError.txt");
-            repErr << "repError: " << repError << endl;
+            //repErr << "repError: " << repError << endl;
 
             remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
 
@@ -336,6 +352,8 @@ void NyKalibrering::on_annuller_clicked()
 void NyKalibrering::tagBillede()
 {
     string imagenr;
+    int cameraExposure = 60000;
+
     if(image_nr < 10)
     {
         imagenr = "00"+to_string(image_nr)+".png";
@@ -366,13 +384,36 @@ void NyKalibrering::tagBillede()
         CPylonImage pylonImage;
         Mat openCvImage;
 
+        GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
+        if ( GenApi::IsWritable( exposureAuto))
+        {
+            exposureAuto->FromString("Off");
+        }
+
+        GenApi::CFloatPtr exposureTime = nodemap.GetNode("ExposureTime");
+        if(exposureTime.IsValid())
+        {
+            if(cameraExposure >= exposureTime->GetMin() && cameraExposure <= exposureTime->GetMax())
+            {
+                exposureTime->SetValue(cameraExposure);
+            }
+            else
+            {
+                exposureTime->SetValue(exposureTime->GetMin());
+            }
+        }
+        else
+        {
+            std::cout << ">> Failed to set exposure value." << std::endl;
+        }
+
         camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
 
         CGrabResultPtr ptrGrabResult;
 
         while(camera.IsGrabbing())
         {
-            camera.RetrieveResult(5000, ptrGrabResult, TimeoutHandling_ThrowException);
+            camera.RetrieveResult(1000, ptrGrabResult, TimeoutHandling_ThrowException);
 
             if(ptrGrabResult->GrabSucceeded())
             {
@@ -382,13 +423,6 @@ void NyKalibrering::tagBillede()
                 Mat grayImage, gausmask, dst;
                 cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
 
-               /* double alpha = 1.5;
-                double beta = -0.5;
-
-                GaussianBlur( grayImage, gausmask, Size( 9, 9 ), 0, 0 );
-                gausmask = grayImage - gausmask;
-                addWeighted(grayImage, alpha, gausmask, beta, 0.0, dst);
-*/
                 imwrite(path+"/"+imagenr, grayImage);
 
                 break;

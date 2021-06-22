@@ -1,9 +1,13 @@
 #include "analyse.h"
 #include "ui_analyse.h"
+#include "fsclass.h"
+#include "kalibreringsFunktioner.h"
 
 using namespace std::filesystem;
 using namespace std;
 using namespace cv;
+using namespace Pylon;
+using namespace ur_rtde;
 
 Analyse::Analyse(QWidget *parent) :
     QDialog(parent),
@@ -95,7 +99,7 @@ void Analyse::setPath(std::string &mainPath)
                         string line, sub;
                         while(getline(repin, line))
                         {
-                            size_t found = line.find(":");
+                            size_t found = line.find("=");
                             sub = line.substr(found+2, line.size());
                         }
                         repin.close();
@@ -146,6 +150,115 @@ void Analyse::on_anvend_valgte_kalibrering_clicked()
 
 void Analyse::on_test_kalibrering_clicked()
 {
+    QItemSelectionModel * select = ui->tableWidget->selectionModel();
+    QList<QModelIndex> rows = select->selectedRows();
+
+    if(rows.size() == 1)
+    {
+        QModelIndex index = rows.at(0);
+        int row = index.row();
+        int col = 0;
+        QString datoStr = ui->tableWidget->item(row,col)->text();
+        string kalibPath = path+datoStr.toStdString();
+
+        Mat grayImage grayRemap, cameraMatrix, distCoeffs, map1, map2;
+
+        FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
+
+        fsCamera.readCamera(cameraMatrix, distCoeffs);
+
+        int cameraExposure = 60000;
+
+        Pylon::PylonAutoInitTerm autoInitTerm;
+        try
+        {
+            CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
+
+            GenApi::INodeMap& nodemap = camera.GetNodeMap();
+            camera.Open();
+
+            GenApi::CIntegerPtr width = nodemap.GetNode("Width");
+            GenApi::CIntegerPtr height = nodemap.GetNode("Height");
+
+            camera.MaxNumBuffer = 5;
+
+            CImageFormatConverter formatConverter;
+            formatConverter.OutputPixelFormat = PixelType_BGR8packed;
+
+            CPylonImage pylonImage;
+            Mat openCvImage;
+
+            GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
+            if ( GenApi::IsWritable( exposureAuto))
+            {
+                exposureAuto->FromString("Off");
+            }
+
+            GenApi::CFloatPtr exposureTime = nodemap.GetNode("ExposureTime");
+            if(exposureTime.IsValid())
+            {
+                if(cameraExposure >= exposureTime->GetMin() && cameraExposure <= exposureTime->GetMax())
+                {
+                    exposureTime->SetValue(cameraExposure);
+                }
+                else
+                {
+                    exposureTime->SetValue(exposureTime->GetMin());
+                }
+            }
+            else
+            {
+                std::cout << ">> Failed to set exposure value." << std::endl;
+            }
+
+            camera.StartGrabbing(5, GrabStrategy_LatestImageOnly);
+
+            CGrabResultPtr ptrGrabResult;
+
+            while(camera.IsGrabbing())
+            {
+                camera.RetrieveResult(2000, ptrGrabResult, TimeoutHandling_ThrowException);
+
+                if(ptrGrabResult->GrabSucceeded())
+                {
+                    formatConverter.Convert(pylonImage, ptrGrabResult);
+                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
+
+                    cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
+                    break;
+                }
+            }
+        }
+        catch (const GenericException &e)
+        {
+                    // Error handling
+                    cerr << "An exception occurred." << endl
+                        << e.GetDescription() << endl;
+        }
+        vector<Mat> grayVector;
+        grayVector.push_back(grayImage);
+        Size imageSize = Size(grayImage.rows, grayImage.cols);
+        remapping(grayVector, cameraMatrix, distCoeffs, imageSize, map1, map2);
+        remap(grayImage, grayRemap, map1, map2, INTER_LINEAR);
+
+        RTDEReceiveInterface rtde_receive(hostname);
+        std::vector<double> joint_positions = rtde_receive.getActualQ();
+
+
+    }
+    else if(rows.size() > 1)
+    {
+        QMessageBox msg;
+        msg.setText(QString::fromStdString("For mange kalibreringer valgt - vælg kun én kalibrering"));
+        msg.exec();
+    }
+    else
+    {
+        QMessageBox msg;
+        msg.setText(QString::fromStdString("Ingen kalibrering valgt - vælg kalibrering fra tabelen"));
+        msg.exec();
+    }
+
 
 }
 
@@ -164,13 +277,77 @@ void Analyse::on_visualiser_clicked()
 {
     QItemSelectionModel * select = ui->tableWidget->selectionModel();
     QList<QModelIndex> rows = select->selectedRows();
+
+    ui->imageLabel->setBackgroundRole(QPalette::Base);
+    ui->imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    std::string repErrorPath;
+    fstream repin;
+
     if(rows.size() == 1)
     {
         QModelIndex index = rows.at(0);
         int row = index.row();
-        int col = 0;
-        QString datoStr = ui->tableWidget->item(row,col)->text();
+        QString datoStr = ui->tableWidget->item(row,0)->text();
+        QString billeder = ui->tableWidget->item(row,1)->text();
         std::string kalibPath = path+datoStr.toStdString();
+        string sub;
+        for(const auto & entry : directory_iterator(kalibPath))
+        {
+            sub = entry.path();
+            std::size_t found = sub.find_last_of(".");
+            sub = sub.substr(found,sub.size());
+            if(sub == ".txt")
+            {
+                repErrorPath = entry.path();
+            }
+        }
+
+        repin.open(repErrorPath, ios::in);
+        string line;
+        vector<double> repErrors;
+        while(getline(repin, line))
+        {
+            if(line != "repErrors: ")
+            {
+                size_t found = line.find_first_of("=");
+                sub = line.substr(found+2, line.size());
+                repErrors.push_back(stod(sub));
+            }
+        }
+        repin.close();
+
+        double max = *max_element(repErrors.begin(), repErrors.end());
+        int image_nr;
+        for(size_t i = 0; i < repErrors.size(); i++)
+        {
+            if(max == repErrors.at(i))
+                image_nr = i;
+        }
+
+        int histSize = repErrors.size();
+
+        int hist_w = 600, hist_h = 400;
+        int bin_w = cvRound( (double) hist_w/histSize );
+        Mat histImage( hist_h, hist_w, CV_8UC1);
+        //normalize(grayHist, grayHist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+
+        for( int i = 0; i < histSize; i++ )
+        {
+            cv::rectangle( histImage, Point( bin_w*(i), cvRound(hist_h) ),
+                Point( bin_w*(i), hist_h - cvRound(repErrors.at(i)*500) ),
+                Scalar(255,0,0), 2, 8, 0  );
+        }
+        imwrite(kalibPath+"/histogram.jpg", histImage);
+
+        namedWindow("test", 1);
+        imshow("test", histImage);
+
+        QPixmap hist(QString::fromStdString(kalibPath+"/histogram.jpg"));
+        ui->imageLabel->setPixmap(hist);
+        ui->imageLabel->setScaledContents(true);
+        ui->maxRep->setText(QString::fromStdString("Max reperror: "+to_string(image_nr)+".png: "+to_string(max)));
+        ui->maxRep->setScaledContents(true);
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
         FSClass fsRobot(kalibPath+"/robotData.yml", datoStr.toStdString());
@@ -183,6 +360,7 @@ void Analyse::on_visualiser_clicked()
         fsCamera.readCamera(cameraRm, cameraTm);
         fsRobot.readRobot(robotRm, robotTm);
         fsHandEye.readHandEye(handEyeRm, handEyeTm);
+
 
       /*  pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
 

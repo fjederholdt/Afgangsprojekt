@@ -212,5 +212,3 @@ void MainWindow::on_robotButton_clicked()
         ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
     }
 }
-
-

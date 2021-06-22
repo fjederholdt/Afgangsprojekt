@@ -160,7 +160,10 @@ void Kalibrering::on_kalibrere_clicked()
                     if(foundPng == std::string::npos && foundRobot == std::string::npos)
                     {
                         if(pngFound)
+                        {
                             row.push_back(word);
+                            //cout << word
+                        }
                     }
                 }
                 if(!row.empty())
@@ -183,7 +186,7 @@ void Kalibrering::on_kalibrere_clicked()
             vector<vector<int>> charucoIds;
             vector<vector<Point2f>> charucoCorners;
 
-            double repError = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
+            vector<double> repErrors = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
 
            // double repError = findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
@@ -191,10 +194,16 @@ void Kalibrering::on_kalibrere_clicked()
 
             ofstream repErr;
             repErr.open(billedePath+"/repError.txt");
-            repErr << "repError: " << repError << endl;
+            repErr << "repErrors: " << endl;
+            for(size_t i = 0; i < repErrors.size(); i++)
+            {
+                repErr << "image number: " << i << " = " << repErrors.at(i) << endl;
+            }
+
+            repErr.close();
 
             remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
-            qDebug() << charucoCorners.size() << " " << charucoIds.size() << Qt::endl;
+
             CharucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
             //findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
@@ -202,14 +211,12 @@ void Kalibrering::on_kalibrere_clicked()
             vector<Mat> tmVec;
             for (size_t i = 0; i < robotPoses.size(); i++)
             {
-                qDebug() << "stegs" << Qt::endl;
                 DHParams dhp(robotPoses.at(i));
                 dhp.calculateDH();
                 rmVec.push_back(dhp.getRM());
                 tmVec.push_back(dhp.getTM());
             }
 
-            qDebug() << "sammich" << Qt::endl;
             Mat cam2GripRM, cam2GripTM;
             calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
             fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
@@ -229,6 +236,35 @@ void Kalibrering::on_kalibrere_clicked()
         msg.setText("Ingen Kalibrering er valgt");
         msg.exec();
     }
+}
 
+void Kalibrering::on_pushButton_clicked() // Mean og standard deviation
+{
+    vector<string> pathVector;
+    vector<string> billeder;
+    QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
+    for(int i = 0; i < items.size(); i++)
+        pathVector.push_back(folderpath+"/"+items.at(i)->text().toStdString());
+
+    string sub;
+    for(const auto & entry : directory_iterator(pathVector.at(0)))
+    {
+        sub = entry.path();
+        std::size_t found = sub.find_last_of(".");
+        sub = sub.substr(found,sub.size());
+        if(sub == ".png")
+        {
+            billeder.push_back(entry.path());
+        }
+    }
+
+    vector<Mat> images = getImages(billeder);
+    Mat mean, stdDev;
+    for (size_t i = 0; i < images.size(); i++)
+    {
+        meanStdDev(images.at(i), mean, stdDev);
+        cout << "billede: " << i << " mean: " << mean << endl;
+        cout << "standard deviation: " << stdDev << endl;
+    }
 }
 
