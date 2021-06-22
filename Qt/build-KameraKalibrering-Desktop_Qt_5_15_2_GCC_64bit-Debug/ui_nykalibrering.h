@@ -30,6 +30,7 @@ public:
     QListWidget *listWidget;
     QLabel *label;
     QPushButton *annuller;
+    QPushButton *Charucomarkers;
 
     void setupUi(QDialog *NyKalibrering)
     {
@@ -38,22 +39,22 @@ public:
         NyKalibrering->resize(927, 520);
         tag_billede = new QPushButton(NyKalibrering);
         tag_billede->setObjectName(QString::fromUtf8("tag_billede"));
-        tag_billede->setGeometry(QRect(360, 20, 89, 25));
+        tag_billede->setGeometry(QRect(340, 20, 161, 25));
         valg_alle_billeder = new QPushButton(NyKalibrering);
         valg_alle_billeder->setObjectName(QString::fromUtf8("valg_alle_billeder"));
-        valg_alle_billeder->setGeometry(QRect(330, 130, 161, 25));
+        valg_alle_billeder->setGeometry(QRect(340, 100, 161, 25));
         slet_billede = new QPushButton(NyKalibrering);
         slet_billede->setObjectName(QString::fromUtf8("slet_billede"));
-        slet_billede->setGeometry(QRect(350, 70, 121, 25));
+        slet_billede->setGeometry(QRect(340, 60, 161, 25));
         brug_vs = new QPushButton(NyKalibrering);
         brug_vs->setObjectName(QString::fromUtf8("brug_vs"));
-        brug_vs->setGeometry(QRect(380, 280, 89, 25));
+        brug_vs->setGeometry(QRect(340, 140, 161, 25));
         kalibrere = new QPushButton(NyKalibrering);
         kalibrere->setObjectName(QString::fromUtf8("kalibrere"));
-        kalibrere->setGeometry(QRect(470, 410, 89, 25));
+        kalibrere->setGeometry(QRect(340, 300, 211, 41));
         auto_billede = new QPushButton(NyKalibrering);
         auto_billede->setObjectName(QString::fromUtf8("auto_billede"));
-        auto_billede->setGeometry(QRect(380, 340, 211, 25));
+        auto_billede->setGeometry(QRect(340, 240, 211, 41));
         listWidget = new QListWidget(NyKalibrering);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
         listWidget->setGeometry(QRect(30, 20, 256, 192));
@@ -62,7 +63,10 @@ public:
         label->setGeometry(QRect(50, 230, 221, 17));
         annuller = new QPushButton(NyKalibrering);
         annuller->setObjectName(QString::fromUtf8("annuller"));
-        annuller->setGeometry(QRect(70, 380, 89, 25));
+        annuller->setGeometry(QRect(50, 430, 89, 25));
+        Charucomarkers = new QPushButton(NyKalibrering);
+        Charucomarkers->setObjectName(QString::fromUtf8("Charucomarkers"));
+        Charucomarkers->setGeometry(QRect(340, 180, 161, 31));
 
         retranslateUi(NyKalibrering);
 
@@ -80,6 +84,7 @@ public:
         auto_billede->setText(QCoreApplication::translate("NyKalibrering", "automatisk billedetagning", nullptr));
         label->setText(QCoreApplication::translate("NyKalibrering", "Billede nr. linker til robot pose", nullptr));
         annuller->setText(QCoreApplication::translate("NyKalibrering", "Annuller", nullptr));
+        Charucomarkers->setText(QCoreApplication::translate("NyKalibrering", "CharucoMarkers", nullptr));
     } // retranslateUi
 
 };

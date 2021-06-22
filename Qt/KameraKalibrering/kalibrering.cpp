@@ -202,8 +202,14 @@ void Kalibrering::on_kalibrere_clicked()
 
             repErr.close();
 
+<<<<<<< HEAD
             remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
 
+=======
+            vector<Mat> rview;
+            remapping(images, cameraMatrix, distCoeffs, map1, map2, rview);
+            qDebug() << charucoCorners.size() << " " << charucoIds.size() << Qt::endl;
+>>>>>>> refs/remotes/origin/main
             CharucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
             //findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 

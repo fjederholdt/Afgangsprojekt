@@ -171,6 +171,7 @@ void MainWindow::on_cameraButton_clicked()
             cv::imshow("charucoMarkers", charucoCopy);
             waitKey(0);
         }
+
         catch (const GenericException &e)
         {
                     // Error handling

@@ -1,7 +1,13 @@
 #include "analyse.h"
 #include "ui_analyse.h"
+<<<<<<< HEAD
 #include "fsclass.h"
 #include "kalibreringsFunktioner.h"
+=======
+#include "kalibreringsFunktioner.h"
+#include "fsclass.h"
+
+>>>>>>> refs/remotes/origin/main
 
 using namespace std::filesystem;
 using namespace std;
@@ -43,7 +49,7 @@ void Analyse::setPath(std::string &mainPath)
         pathVector.push_back(sub);
     }
     ui->tableWidget->setRowCount(pathVector.size());
-    std::vector<std::string> billedePath;
+    vector<string> billedePathInit;
     std::string repErrorPath;
     fstream repin;
     for (size_t i = 0; i < pathVector.size(); i++)
@@ -55,7 +61,7 @@ void Analyse::setPath(std::string &mainPath)
             sub = sub.substr(found,sub.size());
             if(sub == ".png")
             {
-                billedePath.push_back(sub);
+                billedePathInit.push_back(sub);
             }
             else if(sub == ".txt")
             {
@@ -77,7 +83,7 @@ void Analyse::setPath(std::string &mainPath)
                 {
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                    item->setText(QString::fromStdString(std::to_string(billedePath.size())));
+                    item->setText(QString::fromStdString(std::to_string(billedePathInit.size())));
                     item->setTextAlignment(Qt::AlignCenter);
                     ui->tableWidget->setItem(i,1,item);
                     break;
@@ -114,7 +120,7 @@ void Analyse::setPath(std::string &mainPath)
                 }
             }
         }
-        billedePath.clear();
+        billedePathInit.clear();
     }
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -353,11 +359,11 @@ void Analyse::on_visualiser_clicked()
         FSClass fsRobot(kalibPath+"/robotData.yml", datoStr.toStdString());
         FSClass fsHandEye(kalibPath+"/handEyeData.yml", datoStr.toStdString());
 
-        Mat cameraRm, cameraTm;
+        Mat cameraMatrix, distCoeffs;
         Mat robotRm, robotTm;
         Mat handEyeRm, handEyeTm;
 
-        fsCamera.readCamera(cameraRm, cameraTm);
+        fsCamera.readCamera(cameraMatrix, distCoeffs);
         fsRobot.readRobot(robotRm, robotTm);
         fsHandEye.readHandEye(handEyeRm, handEyeTm);
 
@@ -395,7 +401,24 @@ void Analyse::on_visualiser_clicked()
         {
             viewer->spinOnce(100);
         }
-        //qDebug() << kalibPath;*/
+        //qDebug() << kalibPath;
+
+
+
+#include <pcl/visualization/pcl_visualizer.h>
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr myCloud(new PointCloud<pcl::PointXYZ>);
+pcl::PointXYZ p1(0.3,0.4,0.3);
+pcl::PointXYZ p2(0.5,0.5,0.5);
+myCloud.push_back(p1);
+myCloud.push_back(p2);
+
+pcl::visualization::PCLVisualizer myVis("someName");
+myVis.addPointCloud(myCloud);
+myVis.addCoordinateSystem(1);
+myVis.setBackgroundColor(255,255,255);
+myvVis.spin();
+*/
     }
     else if(rows.size() > 1)
     {
@@ -416,4 +439,114 @@ void Analyse::on_annuller_clicked()
 {
     Analyse::close();
 }
+
+
+void Analyse::on_pushButton_clicked()
+{
+    QItemSelectionModel * select = ui->tableWidget->selectionModel();
+    QList<QModelIndex> rows = select->selectedRows();
+    if(rows.size() == 1)
+    {
+        QModelIndex index = rows.at(0);
+        int row = index.row();
+        int col = 0;
+        QString datoStr = ui->tableWidget->item(row,col)->text();
+        string kalibPath = path+datoStr.toStdString();
+        string sub;
+        vector<string> billedePath;
+        for(const auto & entry : directory_iterator(kalibPath))
+        {
+            sub = entry.path();
+            std::size_t found = sub.find_last_of(".");
+            sub = sub.substr(found,sub.size());
+            if(sub == ".png")
+            {
+                billedePath.push_back(entry.path());
+            }
+        }
+
+        const float chessSquareDim = 0.02f;
+        const float arucoSquareDim = 0.015f;
+        const Size chessboardDim = Size(9, 14);
+        vector<Mat> grayImages;
+
+        FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
+        Mat cameraMatrix, distCoeffs;
+        fsCamera.readCamera(cameraMatrix, distCoeffs);
+
+        cout << "sådan en lille en " << kalibPath+"/cameraData.yml" << endl;
+
+        grayImages = getImages(billedePath);
+
+        Mat map1, map2;
+        vector<Mat> rview;
+
+    cout << "før mapping" << endl;
+
+        remapping(grayImages, cameraMatrix, distCoeffs, map1, map2, rview);
+    cout << "Efter mapping :D" << endl;
+
+        if (!grayImages.empty())
+        {
+            try
+            {
+
+                Ptr<aruco::DetectorParameters> params2 = aruco::DetectorParameters::create();
+                Ptr<aruco::Dictionary> dictionary2 = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
+                Ptr<aruco::CharucoBoard> board2 = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary2);
+                //params2->cornerRefinementMethod = cv::aruco::CORNER_REFINE_NONE;
+
+                std::vector<int> markerIds2;
+                std::vector<std::vector<cv::Point2f> > markerCorners2;
+
+                std::vector<cv::Point2f> charucoCorners2;
+                std::vector<int> charucoIds2;
+
+
+                for(vector<Mat>::iterator iter = rview.begin(); iter != rview.end(); iter++)
+                {
+                    Mat inputImage = *iter;
+                    cv::aruco::detectMarkers(inputImage, board2->dictionary, markerCorners2, markerIds2, params2);
+                    if (markerIds2.size() > 0)
+                    {
+                        cv::aruco::drawDetectedMarkers(inputImage, markerCorners2, markerIds2, cv::Scalar(255,0,0));
+                        std::vector<cv::Point2f> charucoCorners;
+                        std::vector<int> charucoIds;
+                        cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImages.at(0), board2, charucoCorners, charucoIds);
+                                // if at least one charuco corner detected
+                        if (charucoIds.size() > 0)
+                        {
+                            cv::aruco::drawDetectedCornersCharuco(inputImage, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));
+                        }
+                    }
+                    namedWindow("charucoMarkers", 1);
+                    cv::imshow("charucoMarkers", inputImage);
+                    waitKey(0);
+                }
+            }
+            catch (Exception& e)
+            {
+                qDebug() << e.what() << Qt::endl;
+            }
+        }
+        else
+        {
+            cout << "Ingen billeder og/eller paths" << endl;
+        }
+    }
+    else if(rows.size() > 1)
+    {
+        QMessageBox msg;
+        msg.setText(QString::fromStdString("For mange kalibreringer valgt - vælg kun én kalibrering"));
+        msg.exec();
+    }
+    else
+    {
+        QMessageBox msg;
+        msg.setText(QString::fromStdString("Ingen kalibrering valgt - vælg kalibrering fra tabelen"));
+        msg.exec();
+    }
+
+}
+
 

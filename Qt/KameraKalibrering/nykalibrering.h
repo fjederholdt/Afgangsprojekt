@@ -72,6 +72,8 @@ private slots:
 
     void on_auto_billede_clicked();
 
+    void on_Charucomarkers_clicked();
+
 private:
     Ui::NyKalibrering *ui;
     std::string path;

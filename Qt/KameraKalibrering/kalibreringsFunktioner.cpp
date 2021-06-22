@@ -52,9 +52,14 @@ void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
         if (valid)
         {
             aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
+<<<<<<< HEAD
             Mat rMat;
             Mat tMat(3,1,CV_64F);
             Rodrigues(rvec, rMat);
+=======
+            Rodrigues(rvec, rMat);
+            Rodrigues(tvec, tMat);
+>>>>>>> refs/remotes/origin/main
             rvectors.push_back(rMat);
             tMat.at <double>(0,0) = tvec[0];
             tMat.at <double>(1,0) = tvec[1];
@@ -65,15 +70,47 @@ void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
     }
 }
 
+<<<<<<< HEAD
 void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2)
 {
     Mat view, rview;
     initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
+=======
+void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs, Mat& map1, Mat& map2, vector<Mat>& rview){
+    Mat view;
+
+    // setup enlargement and offset for new image
+    double y_shift = 60;
+    double x_shift = 70;
+    Size rviewSize = Size(images.at(0).rows, images.at(0).cols);
+    rviewSize.height += 2*y_shift;
+    rviewSize.width += 2*x_shift;
+
+    // create a new camera matrix with the principal point
+    // offest according to the offset above
+    Mat newCameraMatrix = cameraMatrix.clone();
+    for(size_t i = 0; i < images.size(); i++)
+    {
+        rview.push_back(view);
+    }
+    newCameraMatrix.at<double>(0, 2) += x_shift; //adjust c_x by x_shift
+    newCameraMatrix.at<double>(1, 2) += y_shift; //adjust c_y by y_shift
+
+
+    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), newCameraMatrix, rviewSize, CV_8UC1, map1, map2);
+    //initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
+    int i = 0;
+>>>>>>> refs/remotes/origin/main
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         view = *iter;
-        remap(view, rview, map1, map2, INTER_LINEAR);
+        remap(view, rview.at(i), map1, map2, INTER_LINEAR);
+        i++;
     }
+    //Print undistorted billeder og find corners til sharpness
+    //namedWindow("Undistorted Map", 1);
+    //imshow("Undistorted", rview);
+    //int k = waitKey(0); // Wait for a keystroke in the window
 }
 
 vector<Mat> getImages(vector<string> paths)
@@ -81,7 +118,11 @@ vector<Mat> getImages(vector<string> paths)
     vector<Mat> images;
     for (size_t i = 0; i < paths.size(); i++)
     {
+<<<<<<< HEAD
         Mat img = imread(paths.at(i), IMREAD_GRAYSCALE);
+=======
+        Mat img = imread(paths.at(i),IMREAD_GRAYSCALE);
+>>>>>>> refs/remotes/origin/main
         string sub;
         size_t found = paths.at(i).find_last_of("/");
         sub = paths.at(i).substr(found+1, paths.at(i).size());
@@ -95,3 +136,20 @@ vector<Mat> getImages(vector<string> paths)
     }
     return images;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
