@@ -180,9 +180,8 @@ void Kalibrering::on_kalibrere_clicked()
             FSClass fsRobot(billedePath+"/robotData.yml", time);
             FSClass fsHandEye(billedePath+"/handEyeData.yml", time);
 
-            const Size imageSize = Size(images.at(0).rows, images.at(0).cols);
             Mat cameraMatrix, distCoeffs, map1, map2;
-            vector<Mat> rvectors, tvectors;
+            vector<Mat> rvectors, tvectors, imagesRemap;
             vector<vector<int>> charucoIds;
             vector<vector<Point2f>> charucoCorners;
 
@@ -202,14 +201,8 @@ void Kalibrering::on_kalibrere_clicked()
 
             repErr.close();
 
-<<<<<<< HEAD
-            remapping(images, cameraMatrix, distCoeffs, imageSize, map1, map2);
+            remapping(images, cameraMatrix, distCoeffs, map1, map2, imagesRemap);
 
-=======
-            vector<Mat> rview;
-            remapping(images, cameraMatrix, distCoeffs, map1, map2, rview);
-            qDebug() << charucoCorners.size() << " " << charucoIds.size() << Qt::endl;
->>>>>>> refs/remotes/origin/main
             CharucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
             //findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 

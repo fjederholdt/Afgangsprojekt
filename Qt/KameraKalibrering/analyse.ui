@@ -84,7 +84,6 @@
     <string>Færdig</string>
    </property>
   </widget>
-<<<<<<< HEAD
   <widget class="QLabel" name="imageLabel">
    <property name="geometry">
     <rect>
@@ -134,7 +133,8 @@
    </property>
    <property name="text">
     <string>Max reperror:</string>
-=======
+   </property>
+  </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
@@ -146,7 +146,6 @@
    </property>
    <property name="text">
     <string>Hvis Charuco</string>
->>>>>>> refs/remotes/origin/main
    </property>
   </widget>
  </widget>

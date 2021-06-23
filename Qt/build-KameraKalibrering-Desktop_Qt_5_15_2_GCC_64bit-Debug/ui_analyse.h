@@ -27,13 +27,10 @@ public:
     QPushButton *anvend_valgte_kalibrering;
     QPushButton *test_kalibrering;
     QPushButton *annuller;
-<<<<<<< HEAD
     QLabel *imageLabel;
     QLabel *label;
     QLabel *maxRep;
-=======
     QPushButton *pushButton;
->>>>>>> refs/remotes/origin/main
 
     void setupUi(QDialog *Analyse)
     {
@@ -58,7 +55,6 @@ public:
         annuller = new QPushButton(Analyse);
         annuller->setObjectName(QString::fromUtf8("annuller"));
         annuller->setGeometry(QRect(240, 380, 89, 25));
-<<<<<<< HEAD
         imageLabel = new QLabel(Analyse);
         imageLabel->setObjectName(QString::fromUtf8("imageLabel"));
         imageLabel->setGeometry(QRect(666, 60, 291, 291));
@@ -72,11 +68,9 @@ public:
         maxRep = new QLabel(Analyse);
         maxRep->setObjectName(QString::fromUtf8("maxRep"));
         maxRep->setGeometry(QRect(690, 380, 271, 17));
-=======
         pushButton = new QPushButton(Analyse);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(370, 330, 141, 21));
->>>>>>> refs/remotes/origin/main
 
         retranslateUi(Analyse);
 
@@ -90,13 +84,10 @@ public:
         anvend_valgte_kalibrering->setText(QCoreApplication::translate("Analyse", "Anvned valgte kalibrering", nullptr));
         test_kalibrering->setText(QCoreApplication::translate("Analyse", "Test kalibrering", nullptr));
         annuller->setText(QCoreApplication::translate("Analyse", "F\303\246rdig", nullptr));
-<<<<<<< HEAD
         imageLabel->setText(QString());
         label->setText(QCoreApplication::translate("Analyse", "graf over reprojection errors", nullptr));
         maxRep->setText(QCoreApplication::translate("Analyse", "Max reperror:", nullptr));
-=======
         pushButton->setText(QCoreApplication::translate("Analyse", "Hvis Charuco", nullptr));
->>>>>>> refs/remotes/origin/main
     } // retranslateUi
 
 };

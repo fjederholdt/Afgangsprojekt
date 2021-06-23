@@ -52,14 +52,9 @@ void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
         if (valid)
         {
             aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
-<<<<<<< HEAD
             Mat rMat;
             Mat tMat(3,1,CV_64F);
             Rodrigues(rvec, rMat);
-=======
-            Rodrigues(rvec, rMat);
-            Rodrigues(tvec, tMat);
->>>>>>> refs/remotes/origin/main
             rvectors.push_back(rMat);
             tMat.at <double>(0,0) = tvec[0];
             tMat.at <double>(1,0) = tvec[1];
@@ -70,13 +65,10 @@ void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
     }
 }
 
-<<<<<<< HEAD
-void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs,const Size imageSize, Mat& map1, Mat& map2)
+
+
+void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs, Mat& map1, Mat& map2, vector<Mat>& rview)
 {
-    Mat view, rview;
-    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
-=======
-void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs, Mat& map1, Mat& map2, vector<Mat>& rview){
     Mat view;
 
     // setup enlargement and offset for new image
@@ -98,9 +90,9 @@ void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoef
 
 
     initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), newCameraMatrix, rviewSize, CV_8UC1, map1, map2);
-    //initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_8UC1, map1, map2);
+
     int i = 0;
->>>>>>> refs/remotes/origin/main
+
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         view = *iter;
@@ -118,11 +110,8 @@ vector<Mat> getImages(vector<string> paths)
     vector<Mat> images;
     for (size_t i = 0; i < paths.size(); i++)
     {
-<<<<<<< HEAD
         Mat img = imread(paths.at(i), IMREAD_GRAYSCALE);
-=======
-        Mat img = imread(paths.at(i),IMREAD_GRAYSCALE);
->>>>>>> refs/remotes/origin/main
+
         string sub;
         size_t found = paths.at(i).find_last_of("/");
         sub = paths.at(i).substr(found+1, paths.at(i).size());

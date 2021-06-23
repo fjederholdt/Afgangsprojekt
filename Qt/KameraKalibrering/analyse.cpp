@@ -1,13 +1,7 @@
 #include "analyse.h"
 #include "ui_analyse.h"
-<<<<<<< HEAD
 #include "fsclass.h"
 #include "kalibreringsFunktioner.h"
-=======
-#include "kalibreringsFunktioner.h"
-#include "fsclass.h"
-
->>>>>>> refs/remotes/origin/main
 
 using namespace std::filesystem;
 using namespace std;
@@ -167,7 +161,7 @@ void Analyse::on_test_kalibrering_clicked()
         QString datoStr = ui->tableWidget->item(row,col)->text();
         string kalibPath = path+datoStr.toStdString();
 
-        Mat grayImage grayRemap, cameraMatrix, distCoeffs, map1, map2;
+        Mat grayImage, cameraMatrix, distCoeffs, map1, map2;
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
 
@@ -241,15 +235,12 @@ void Analyse::on_test_kalibrering_clicked()
                     cerr << "An exception occurred." << endl
                         << e.GetDescription() << endl;
         }
-        vector<Mat> grayVector;
+        vector<Mat> grayVector, grayRemap;
         grayVector.push_back(grayImage);
-        Size imageSize = Size(grayImage.rows, grayImage.cols);
-        remapping(grayVector, cameraMatrix, distCoeffs, imageSize, map1, map2);
-        remap(grayImage, grayRemap, map1, map2, INTER_LINEAR);
+        remapping(grayVector, cameraMatrix, distCoeffs, map1, map2, grayRemap);
 
         RTDEReceiveInterface rtde_receive(hostname);
         std::vector<double> joint_positions = rtde_receive.getActualQ();
-
 
     }
     else if(rows.size() > 1)
@@ -474,17 +465,12 @@ void Analyse::on_pushButton_clicked()
         Mat cameraMatrix, distCoeffs;
         fsCamera.readCamera(cameraMatrix, distCoeffs);
 
-        cout << "sådan en lille en " << kalibPath+"/cameraData.yml" << endl;
-
         grayImages = getImages(billedePath);
 
         Mat map1, map2;
         vector<Mat> rview;
 
-    cout << "før mapping" << endl;
-
         remapping(grayImages, cameraMatrix, distCoeffs, map1, map2, rview);
-    cout << "Efter mapping :D" << endl;
 
         if (!grayImages.empty())
         {
