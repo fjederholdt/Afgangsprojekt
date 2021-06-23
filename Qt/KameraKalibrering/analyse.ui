@@ -135,7 +135,7 @@
     <string>Max reperror:</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="hvis_charuco">
    <property name="geometry">
     <rect>
      <x>370</x>

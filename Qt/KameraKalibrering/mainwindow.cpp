@@ -28,10 +28,6 @@ using namespace std;
 using namespace ur_rtde;
 using namespace Pylon;
 
-const float chessSquareDim = 0.02f;
-const float arucoSquareDim = 0.015f;
-const Size chessboardDim = Size(9, 14);
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -141,14 +137,9 @@ void MainWindow::on_cameraButton_clicked()
             namedWindow("sharp",1);
             imshow("sharp", dst);
 
-            Ptr<aruco::DetectorParameters> params2 = aruco::DetectorParameters::create();
-            Ptr<aruco::Dictionary> dictionary2 = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
-            Ptr<aruco::CharucoBoard> board2 = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary2);
-            params2->cornerRefinementMethod = cv::aruco::CORNER_REFINE_NONE;
-
             std::vector<int> markerIds2;
             std::vector<std::vector<cv::Point2f> > markerCorners2;
-            cv::aruco::detectMarkers(grayImage, board2->dictionary, markerCorners2, markerIds2, params2);
+            cv::aruco::detectMarkers(grayImage, board->dictionary, markerCorners2, markerIds2, params);
 
             std::vector<cv::Point2f> charucoCorners2;
             std::vector<int> charucoIds2;
@@ -162,7 +153,7 @@ void MainWindow::on_cameraButton_clicked()
                 cv::aruco::drawDetectedMarkers(charucoCopy, markerCorners2, markerIds2);
                 std::vector<cv::Point2f> charucoCorners;
                 std::vector<int> charucoIds;
-                cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImage, board2, charucoCorners, charucoIds);
+                cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImage, board, charucoCorners, charucoIds);
                         // if at least one charuco corner detected
                 if (charucoIds.size() > 0)
                 cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));

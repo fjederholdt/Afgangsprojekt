@@ -235,9 +235,31 @@ void Analyse::on_test_kalibrering_clicked()
                     cerr << "An exception occurred." << endl
                         << e.GetDescription() << endl;
         }
+
         vector<Mat> grayVector, grayRemap;
         grayVector.push_back(grayImage);
         remapping(grayVector, cameraMatrix, distCoeffs, map1, map2, grayRemap);
+
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f> > markerCorners;
+        cv::aruco::detectMarkers(grayRemap.at(0), board->dictionary, markerCorners, markerIds, params);
+
+        std::vector<cv::Point2f> charucoCorners;
+        std::vector<int> charucoIds;
+
+        Mat charucoCopy;
+        grayRemap.at(0).copyTo(charucoCopy);
+                //cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners2, charucoIds2, cv::Scalar(255,0,0));
+
+        if (markerIds.size() > 0)
+        {
+            cv::aruco::drawDetectedMarkers(charucoCopy, markerCorners, markerIds);
+            std::vector<cv::Point2f> charucoCorners;
+            std::vector<int> charucoIds;
+            cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImage, board, charucoCorners, charucoIds);
+        }
+
+        //aruco::getBoardObjectAndImagePoints()
 
         RTDEReceiveInterface rtde_receive(hostname);
         std::vector<double> joint_positions = rtde_receive.getActualQ();
@@ -432,7 +454,7 @@ void Analyse::on_annuller_clicked()
 }
 
 
-void Analyse::on_pushButton_clicked()
+void Analyse::on_hvis_charuco_clicked()
 {
     QItemSelectionModel * select = ui->tableWidget->selectionModel();
     QList<QModelIndex> rows = select->selectedRows();
@@ -456,9 +478,6 @@ void Analyse::on_pushButton_clicked()
             }
         }
 
-        const float chessSquareDim = 0.02f;
-        const float arucoSquareDim = 0.015f;
-        const Size chessboardDim = Size(9, 14);
         vector<Mat> grayImages;
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
@@ -476,29 +495,23 @@ void Analyse::on_pushButton_clicked()
         {
             try
             {
+                std::vector<int> markerIds;
+                std::vector<std::vector<cv::Point2f> > markerCorners;
 
-                Ptr<aruco::DetectorParameters> params2 = aruco::DetectorParameters::create();
-                Ptr<aruco::Dictionary> dictionary2 = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
-                Ptr<aruco::CharucoBoard> board2 = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary2);
-                //params2->cornerRefinementMethod = cv::aruco::CORNER_REFINE_NONE;
-
-                std::vector<int> markerIds2;
-                std::vector<std::vector<cv::Point2f> > markerCorners2;
-
-                std::vector<cv::Point2f> charucoCorners2;
-                std::vector<int> charucoIds2;
+                std::vector<cv::Point2f> charucoCorners;
+                std::vector<int> charucoIds;
 
 
                 for(vector<Mat>::iterator iter = rview.begin(); iter != rview.end(); iter++)
                 {
                     Mat inputImage = *iter;
-                    cv::aruco::detectMarkers(inputImage, board2->dictionary, markerCorners2, markerIds2, params2);
-                    if (markerIds2.size() > 0)
+                    cv::aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params);
+                    if (markerIds.size() > 0)
                     {
-                        cv::aruco::drawDetectedMarkers(inputImage, markerCorners2, markerIds2, cv::Scalar(255,0,0));
+                        cv::aruco::drawDetectedMarkers(inputImage, markerCorners, markerIds, cv::Scalar(255,0,0));
                         std::vector<cv::Point2f> charucoCorners;
                         std::vector<int> charucoIds;
-                        cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImages.at(0), board2, charucoCorners, charucoIds);
+                        cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImages.at(0), board, charucoCorners, charucoIds);
                                 // if at least one charuco corner detected
                         if (charucoIds.size() > 0)
                         {

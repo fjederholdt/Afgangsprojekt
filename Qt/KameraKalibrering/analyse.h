@@ -71,7 +71,7 @@ private slots:
 
     void on_annuller_clicked();
 
-    void on_pushButton_clicked();
+    void on_hvis_charuco_clicked();
 
 private:
     Ui::Analyse *ui;

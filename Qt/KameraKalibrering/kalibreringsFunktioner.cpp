@@ -3,16 +3,8 @@
 using namespace cv;
 using namespace std;
 
-const float chessSquareDim = 0.02f;
-const float arucoSquareDim = 0.015f;
-const Size chessboardDim = Size(9, 14);
-
 vector<double> calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds)
 {
-    Ptr<aruco::DetectorParameters> params = aruco::DetectorParameters::create();
-    Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
-    Ptr<aruco::CharucoBoard> board = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary);
-
     vector<int> markerIds;
     vector<vector<Point2f>> markerCorners;
     vector<Mat> rvecs, tvecs;
@@ -21,7 +13,7 @@ vector<double> calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& dis
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         Mat inputImage = *iter;
-        aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds);
+        aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params);
         if (markerIds.size() > 0)
         {
             vector<Point2f> arucoCorners;
@@ -37,11 +29,8 @@ vector<double> calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& dis
     return repErrors;
 }
 
-void CharucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds, vector<Mat>& rvectors, vector<Mat>& tvectors)
+void charucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds, vector<Mat>& rvectors, vector<Mat>& tvectors)
 {
-    Ptr<aruco::DetectorParameters> params = aruco::DetectorParameters::create();
-    Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
-    Ptr<aruco::CharucoBoard> board = aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary);
     int i = 0;
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {

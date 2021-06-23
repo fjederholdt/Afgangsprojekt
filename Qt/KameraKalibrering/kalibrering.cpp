@@ -203,7 +203,7 @@ void Kalibrering::on_kalibrere_clicked()
 
             remapping(images, cameraMatrix, distCoeffs, map1, map2, imagesRemap);
 
-            CharucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
+            charucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
             //findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
             vector<Mat> rmVec;
