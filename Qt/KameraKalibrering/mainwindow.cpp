@@ -190,13 +190,21 @@ void MainWindow::on_robotButton_clicked()
         RTDEReceiveInterface rtde_receive(hostname);
 
         vector<double> joint_positions = rtde_receive.getActualQ();
+        vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
         for (size_t i = 0; i < joint_positions.size(); i++)
         {
             qDebug() << joint_positions.at(i) << " ";
         }
-    /*joint_positions.at(0)=joint_positions.at(0)-0.5;
+    //joint_positions.at(0)=joint_positions.at(0)-0.5;
 
-    rtde_control.moveJ(joint_positions);*/
+        joint_positions.at(0) = 0.171629;
+        joint_positions.at(1) = -1.80515;
+        joint_positions.at(2) = -1.44173;
+        joint_positions.at(3) = -1.52207;
+        joint_positions.at(4) = 1.5658;
+        joint_positions.at(5) = -2.13749;
+
+        rtde_control.moveJ(joint_positions);
     }
     else
     {

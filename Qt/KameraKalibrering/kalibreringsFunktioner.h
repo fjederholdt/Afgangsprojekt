@@ -10,8 +10,10 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-    std::vector<double> calibrateCharuco(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds);
+    std::vector<double> calibrateCharuco(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds, std::vector<cv::Mat>& rotationMat, std::vector<cv::Mat>& translationMat);
     void charucoBoardPose(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds, std::vector<cv::Mat>& rvectors, std::vector<cv::Mat>& tvectors);
+    void detectCharuco(std::vector<cv::Mat>& images, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds);
+    void charucoPoints(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<cv::Mat>& rvectors, std::vector<cv::Mat>& tvectors);
     void remapping(std::vector<cv::Mat>& images, const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs, cv::Mat& map1, cv::Mat& map2, std::vector<cv::Mat>& rview);
     std::vector<cv::Mat> getImages(std::vector<std::string> paths);
     void caliSharpnes(std::vector<cv::Mat> rview);

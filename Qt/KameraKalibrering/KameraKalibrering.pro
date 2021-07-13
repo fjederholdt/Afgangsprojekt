@@ -15,6 +15,7 @@ SOURCES += \
     fsclass.cpp \
     kalibrering.cpp \
     kalibreringsFunktioner.cpp \
+    kameraFunktioner.cpp \
     main.cpp \
     mainwindow.cpp \
     nykalibrering.cpp
@@ -26,6 +27,7 @@ HEADERS += \
     fsclass.h \
     kalibrering.h \
     kalibreringsFunktioner.h \
+    kameraFunktioner.h \
     mainwindow.h \
     nykalibrering.h
 

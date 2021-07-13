@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Analyse_t {
     QByteArrayData data[7];
-    char stringdata0[138];
+    char stringdata0[140];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,13 +38,13 @@ QT_MOC_LITERAL(2, 45, 0), // ""
 QT_MOC_LITERAL(3, 46, 27), // "on_test_kalibrering_clicked"
 QT_MOC_LITERAL(4, 74, 21), // "on_visualiser_clicked"
 QT_MOC_LITERAL(5, 96, 19), // "on_annuller_clicked"
-QT_MOC_LITERAL(6, 116, 21) // "on_pushButton_clicked"
+QT_MOC_LITERAL(6, 116, 23) // "on_hvis_charuco_clicked"
 
     },
     "Analyse\0on_anvend_valgte_kalibrering_clicked\0"
     "\0on_test_kalibrering_clicked\0"
     "on_visualiser_clicked\0on_annuller_clicked\0"
-    "on_pushButton_clicked"
+    "on_hvis_charuco_clicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -88,7 +88,7 @@ void Analyse::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         case 1: _t->on_test_kalibrering_clicked(); break;
         case 2: _t->on_visualiser_clicked(); break;
         case 3: _t->on_annuller_clicked(); break;
-        case 4: _t->on_pushButton_clicked(); break;
+        case 4: _t->on_hvis_charuco_clicked(); break;
         default: ;
         }
     }

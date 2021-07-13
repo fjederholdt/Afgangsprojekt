@@ -128,11 +128,11 @@ void Kalibrering::on_kalibrere_clicked()
             fin.open(robotPosesCSV, ios::in);
             vector<string> row;
             string line, word;
-            vector<vector<long double>> robotPoses;
+            vector<vector<double>> robotPoses;
             while (robotPoses.size() < images.size())
             {
                 row.clear();
-                vector<long double> pose;
+                vector<double> pose;
                 getline(fin, line);
                 stringstream s(line);
                 string png;
@@ -170,7 +170,7 @@ void Kalibrering::on_kalibrere_clicked()
                 {
                     for	(size_t i = 0; i < row.size(); i++)
                     {
-                        pose.push_back(stold(row.at(i)));
+                        pose.push_back(stod(row.at(i)));
                     }
                     robotPoses.push_back(pose);
                 }
@@ -181,15 +181,15 @@ void Kalibrering::on_kalibrere_clicked()
             FSClass fsHandEye(billedePath+"/handEyeData.yml", time);
 
             Mat cameraMatrix, distCoeffs, map1, map2;
-            vector<Mat> rvectors, tvectors, imagesRemap;
+            vector<Mat> rvectors, tvectors, imagesRemap, rotationMat, translationMat;
             vector<vector<int>> charucoIds;
             vector<vector<Point2f>> charucoCorners;
 
-            vector<double> repErrors = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
+            vector<double> repErrors = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rotationMat, translationMat);
 
-           // double repError = findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
-
-            fsCamera.writeCamera(cameraMatrix, distCoeffs);
+            Mat rodRotationMat;
+            Rodrigues(rotationMat.at(0),rodRotationMat);
+            fsCamera.writeCamera(cameraMatrix, distCoeffs, rodRotationMat, translationMat.at(0));
 
             ofstream repErr;
             repErr.open(billedePath+"/repError.txt");
@@ -203,8 +203,7 @@ void Kalibrering::on_kalibrere_clicked()
 
             remapping(images, cameraMatrix, distCoeffs, map1, map2, imagesRemap);
 
-            charucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
-            //findArucoMarkers2(images, cameraMatrix, distCoeffs, rvectors, tvectors);
+            //charucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
 
             vector<Mat> rmVec;
             vector<Mat> tmVec;
@@ -217,7 +216,7 @@ void Kalibrering::on_kalibrere_clicked()
             }
 
             Mat cam2GripRM, cam2GripTM;
-            calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
+            calibrateHandEye(rmVec, tmVec, rotationMat, translationMat, cam2GripRM, cam2GripTM);
             fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
 
             QMessageBox msg;
@@ -239,7 +238,9 @@ void Kalibrering::on_kalibrere_clicked()
 
 void Kalibrering::on_pushButton_clicked() // Mean og standard deviation
 {
-    vector<string> pathVector;
+    cout << board->objPoints.at(0).at(0).x << ", " << board->objPoints.at(0).at(0).y;
+
+   /* vector<string> pathVector;
     vector<string> billeder;
     QList<QListWidgetItem*> items = ui->listWidget->selectedItems();
     for(int i = 0; i < items.size(); i++)
@@ -264,6 +265,6 @@ void Kalibrering::on_pushButton_clicked() // Mean og standard deviation
         meanStdDev(images.at(i), mean, stdDev);
         cout << "billede: " << i << " mean: " << mean << endl;
         cout << "standard deviation: " << stdDev << endl;
-    }
+    }*/
 }
 

@@ -1,0 +1,10 @@
+repErrors: 
+image number: 0 = 0.323502
+image number: 1 = 0.347805
+image number: 2 = 0.376033
+image number: 3 = 0.357456
+image number: 4 = 0.367029
+image number: 5 = 0.330995
+image number: 6 = 0.32191
+image number: 7 = 0.322509
+image number: 8 = 0.352237

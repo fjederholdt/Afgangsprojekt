@@ -2,6 +2,7 @@
 #include "ui_nykalibrering.h"
 #include "kalibrering.h"
 #include "kalibreringsFunktioner.h"
+#include "kameraFunktioner.h"
 #include "dhparams.h"
 
 using namespace std::filesystem;
@@ -61,7 +62,6 @@ void NyKalibrering::on_tag_billede_clicked()
     vector<Mat> images;
     vector<vector<double>> robotPoses;
     string imagenr;
-    int cameraExposure = 60000;
 
     Pylon::PylonAutoInitTerm autoInitTerm;
 
@@ -82,7 +82,8 @@ void NyKalibrering::on_tag_billede_clicked()
 
         CPylonImage pylonImage;
         Mat openCvImage;
-        GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
+
+        /*GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
         if ( GenApi::IsWritable( exposureAuto))
         {
             exposureAuto->FromString("Off");
@@ -104,6 +105,7 @@ void NyKalibrering::on_tag_billede_clicked()
         {
             std::cout << ">> Failed to set exposure value." << std::endl;
         }
+        */
 
         CGrabResultPtr ptrGrabResult;
 
@@ -232,11 +234,11 @@ void NyKalibrering::on_kalibrere_clicked()
             fin.open(path+"/robotPoses.csv", ios::in);
             vector<string> row;
             string line, word;
-            vector<vector<long double>> robotPoses;
+            vector<vector<double>> robotPoses;
             while (robotPoses.size() < billeder.size())
             {
                 row.clear();
-                vector<long double> pose;
+                vector<double> pose;
                 getline(fin, line);
                 stringstream s(line);
                 string png;
@@ -273,7 +275,7 @@ void NyKalibrering::on_kalibrere_clicked()
                 {
                     for	(size_t i = 0; i < row.size(); i++)
                     {
-                        pose.push_back(stold(row.at(i)));
+                        pose.push_back(stod(row.at(i)));
                     }
                     robotPoses.push_back(pose);
                 }
@@ -286,18 +288,25 @@ void NyKalibrering::on_kalibrere_clicked()
             FSClass fsHandEye(path+"/handEyeData.yml", localTime);
 
             Mat cameraMatrix, distCoeffs, map1, map2;
-            vector<Mat> rvectors, tvectors;
+            vector<Mat> rvectors, tvectors, rotationMat, translationMat;
             vector<vector<int>> charucoIds;
             vector<vector<Point2f>> charucoCorners;
 
-            vector<double> repError = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds);
+            vector<double> repErrors = calibrateCharuco(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rotationMat, translationMat);
                     //findArucoMarkers(images, cameraMatrix, distCoeffs, rvectors, tvectors);
 
-            fsCamera.writeCamera(cameraMatrix, distCoeffs);
+            fsCamera.writeCamera(cameraMatrix, distCoeffs, rotationMat.at(0), translationMat.at(0));
 
             ofstream repErr;
             repErr.open(path+"/repError.txt");
-            //repErr << "repError: " << repError << endl;
+            repErr << "repErrors: " << endl;
+            for(size_t i = 0; i < repErrors.size(); i++)
+            {
+                repErr << "image number: " << i << " = " << repErrors.at(i) << endl;
+            }
+
+            repErr.close();
+
 
             vector<Mat> rview;
             remapping(images, cameraMatrix, distCoeffs, map1, map2, rview);
@@ -354,7 +363,6 @@ void NyKalibrering::on_annuller_clicked()
 void NyKalibrering::tagBillede()
 {
     string imagenr;
-    int cameraExposure = 60000;
 
     if(image_nr < 10)
     {
@@ -386,6 +394,7 @@ void NyKalibrering::tagBillede()
         CPylonImage pylonImage;
         Mat openCvImage;
 
+        /*
         GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
         if ( GenApi::IsWritable( exposureAuto))
         {
@@ -408,6 +417,7 @@ void NyKalibrering::tagBillede()
         {
             std::cout << ">> Failed to set exposure value." << std::endl;
         }
+        */
 
         camera.StartGrabbing(10, GrabStrategy_LatestImageOnly);
 
@@ -422,7 +432,7 @@ void NyKalibrering::tagBillede()
                 formatConverter.Convert(pylonImage, ptrGrabResult);
                 openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
 
-                Mat grayImage, gausmask, dst;
+                Mat grayImage;
                 cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
 
                 imwrite(path+"/"+imagenr, grayImage);
@@ -453,76 +463,44 @@ void NyKalibrering::on_auto_billede_clicked()
 {
     RTDEControlInterface rtde_control(hostname);
     RTDEReceiveInterface rtde_receive(hostname);
-    std::vector<double> start_joint_positions;
-    start_joint_positions.push_back(0.0896502);
-    start_joint_positions.push_back(-2.67059);
-    start_joint_positions.push_back(-1.81507);
-    start_joint_positions.push_back(-0.203168);
-    start_joint_positions.push_back(1.56764);
-    start_joint_positions.push_back(-0.667389);
-    rtde_control.moveJ(start_joint_positions);
-
+    std::vector<double> start_joint_positions = rtde_receive.getTargetQ();
     std::vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
 
+    unsigned int microsecond = 1000000;
     tagBillede();
     cartesian_positions.at(0) += 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    std::vector<double> joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) += 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(1) += 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) -= 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(0) -= 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) += 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(0) -= 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) -= 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(1) -= 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) += 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(1) -= 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) -= 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(0) += 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) += 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     cartesian_positions.at(0) += 0.05;
     rtde_control.moveL(cartesian_positions,0.25,1.2,false);
-    tagBillede();
-    joint_positions = rtde_receive.getActualQ();
-    joint_positions.at(5) -= 1.57;
-    rtde_control.moveJ(joint_positions);
+    usleep(3 * microsecond);
     tagBillede();
     rtde_control.moveJ(start_joint_positions);
-
 }
 
 

@@ -30,7 +30,7 @@ public:
     QLabel *imageLabel;
     QLabel *label;
     QLabel *maxRep;
-    QPushButton *pushButton;
+    QPushButton *hvis_charuco;
 
     void setupUi(QDialog *Analyse)
     {
@@ -68,9 +68,9 @@ public:
         maxRep = new QLabel(Analyse);
         maxRep->setObjectName(QString::fromUtf8("maxRep"));
         maxRep->setGeometry(QRect(690, 380, 271, 17));
-        pushButton = new QPushButton(Analyse);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(370, 330, 141, 21));
+        hvis_charuco = new QPushButton(Analyse);
+        hvis_charuco->setObjectName(QString::fromUtf8("hvis_charuco"));
+        hvis_charuco->setGeometry(QRect(370, 330, 141, 21));
 
         retranslateUi(Analyse);
 
@@ -87,7 +87,7 @@ public:
         imageLabel->setText(QString());
         label->setText(QCoreApplication::translate("Analyse", "graf over reprojection errors", nullptr));
         maxRep->setText(QCoreApplication::translate("Analyse", "Max reperror:", nullptr));
-        pushButton->setText(QCoreApplication::translate("Analyse", "Hvis Charuco", nullptr));
+        hvis_charuco->setText(QCoreApplication::translate("Analyse", "Hvis Charuco", nullptr));
     } // retranslateUi
 
 };

@@ -63,7 +63,7 @@ public:
         annuller->setText(QCoreApplication::translate("Kalibrering", "F\303\246rdig", nullptr));
         slet_kalibrering->setText(QCoreApplication::translate("Kalibrering", "Slet kalibrering", nullptr));
         kalibrere->setText(QCoreApplication::translate("Kalibrering", "Kalibrere", nullptr));
-        pushButton->setText(QCoreApplication::translate("Kalibrering", "Remap", nullptr));
+        pushButton->setText(QCoreApplication::translate("Kalibrering", "push", nullptr));
     } // retranslateUi
 
 };
