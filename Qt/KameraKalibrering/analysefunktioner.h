@@ -9,7 +9,6 @@ public:
 
     void caliSharp();
 
-
 };
 
 #endif // ANALYSEFUNKTIONER_H

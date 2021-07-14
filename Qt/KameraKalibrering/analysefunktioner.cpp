@@ -9,3 +9,4 @@ void analyseFunktioner::caliSharp()
 {
 
 }
+

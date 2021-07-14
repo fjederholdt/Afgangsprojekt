@@ -181,22 +181,22 @@ Mat DHParams::multiplyDH(vector<Mat> rtMatrixVec)
         }
         else
         {
-            res.at<float>(0) = (temp.at<float>(0)* (*iter).at<float>(0))+(temp.at<float>(1)* (*iter).at<float>(4))+(temp.at<float>(2)* (*iter).at<float>(8))+(temp.at<float>(3)* (*iter).at<float>(12));
-            res.at<float>(1) = (temp.at<float>(0)* (*iter).at<float>(1))+(temp.at<float>(1)* (*iter).at<float>(5))+(temp.at<float>(2)* (*iter).at<float>(9))+(temp.at<float>(3)* (*iter).at<float>(13));
-            res.at<float>(2) = (temp.at<float>(0)* (*iter).at<float>(2))+(temp.at<float>(1)* (*iter).at<float>(6))+(temp.at<float>(2)* (*iter).at<float>(10))+(temp.at<float>(3)* (*iter).at<float>(14));
-            res.at<float>(3) = (temp.at<float>(0)* (*iter).at<float>(3))+(temp.at<float>(1)* (*iter).at<float>(7))+(temp.at<float>(2)* (*iter).at<float>(11))+(temp.at<float>(3)* (*iter).at<float>(15));
-            res.at<float>(4) = (temp.at<float>(4)* (*iter).at<float>(0))+(temp.at<float>(5)* (*iter).at<float>(4))+(temp.at<float>(6)* (*iter).at<float>(8))+(temp.at<float>(7)* (*iter).at<float>(12));
-            res.at<float>(5) = (temp.at<float>(4)* (*iter).at<float>(1))+(temp.at<float>(5)* (*iter).at<float>(5))+(temp.at<float>(6)* (*iter).at<float>(9))+(temp.at<float>(7)* (*iter).at<float>(13));
-            res.at<float>(6) = (temp.at<float>(4)* (*iter).at<float>(2))+(temp.at<float>(5)* (*iter).at<float>(6))+(temp.at<float>(6)* (*iter).at<float>(10))+(temp.at<float>(7)* (*iter).at<float>(14));
-            res.at<float>(7) = (temp.at<float>(4)* (*iter).at<float>(3))+(temp.at<float>(5)* (*iter).at<float>(7))+(temp.at<float>(6)* (*iter).at<float>(11))+(temp.at<float>(7)* (*iter).at<float>(15));
-            res.at<float>(8) = (temp.at<float>(8)* (*iter).at<float>(0))+(temp.at<float>(9)* (*iter).at<float>(4))+(temp.at<float>(10)* (*iter).at<float>(8))+(temp.at<float>(11)* (*iter).at<float>(12));
-            res.at<float>(9) = (temp.at<float>(8)* (*iter).at<float>(1))+(temp.at<float>(9)* (*iter).at<float>(5))+(temp.at<float>(10)* (*iter).at<float>(9))+(temp.at<float>(11)* (*iter).at<float>(13));
-            res.at<float>(10) = (temp.at<float>(8)* (*iter).at<float>(2))+(temp.at<float>(9)* (*iter).at<float>(6))+(temp.at<float>(10)* (*iter).at<float>(10))+(temp.at<float>(11)* (*iter).at<float>(14));
-            res.at<float>(11) = (temp.at<float>(8)* (*iter).at<float>(3))+(temp.at<float>(9)* (*iter).at<float>(7))+(temp.at<float>(10)* (*iter).at<float>(11))+(temp.at<float>(11)* (*iter).at<float>(15));
-            res.at<float>(12) = (temp.at<float>(12)* (*iter).at<float>(0))+(temp.at<float>(13)* (*iter).at<float>(4))+(temp.at<float>(14)* (*iter).at<float>(8))+(temp.at<float>(15)* (*iter).at<float>(12));
-            res.at<float>(13) = (temp.at<float>(12)* (*iter).at<float>(1))+(temp.at<float>(13)* (*iter).at<float>(5))+(temp.at<float>(14)* (*iter).at<float>(9))+(temp.at<float>(15)* (*iter).at<float>(13));
-            res.at<float>(14) = (temp.at<float>(12)* (*iter).at<float>(2))+(temp.at<float>(13)* (*iter).at<float>(6))+(temp.at<float>(14)* (*iter).at<float>(10))+(temp.at<float>(15)* (*iter).at<float>(14));
-            res.at<float>(15) = (temp.at<float>(12)* (*iter).at<float>(3))+(temp.at<float>(13)* (*iter).at<float>(7))+(temp.at<float>(14)* (*iter).at<float>(11))+(temp.at<float>(15)* (*iter).at<float>(15));
+            res.at<float>(0)  = (temp.at<float>(0)* (*iter).at<float>(0)) + (temp.at<float>(1)* (*iter).at<float>(4)) + (temp.at<float>(2)* (*iter).at<float>(8)) + (temp.at<float>(3)* (*iter).at<float>(12));
+            res.at<float>(1)  = (temp.at<float>(0)* (*iter).at<float>(1)) + (temp.at<float>(1)* (*iter).at<float>(5)) + (temp.at<float>(2)* (*iter).at<float>(9)) + (temp.at<float>(3)* (*iter).at<float>(13));
+            res.at<float>(2)  = (temp.at<float>(0)* (*iter).at<float>(2)) + (temp.at<float>(1)* (*iter).at<float>(6)) + (temp.at<float>(2)* (*iter).at<float>(10)) + (temp.at<float>(3)* (*iter).at<float>(14));
+            res.at<float>(3)  = (temp.at<float>(0)* (*iter).at<float>(3)) + (temp.at<float>(1)* (*iter).at<float>(7)) + (temp.at<float>(2)* (*iter).at<float>(11)) + (temp.at<float>(3)* (*iter).at<float>(15));
+            res.at<float>(4)  = (temp.at<float>(4)* (*iter).at<float>(0)) + (temp.at<float>(5)* (*iter).at<float>(4)) + (temp.at<float>(6)* (*iter).at<float>(8)) + (temp.at<float>(7)* (*iter).at<float>(12));
+            res.at<float>(5)  = (temp.at<float>(4)* (*iter).at<float>(1)) + (temp.at<float>(5)* (*iter).at<float>(5)) + (temp.at<float>(6)* (*iter).at<float>(9)) + (temp.at<float>(7)* (*iter).at<float>(13));
+            res.at<float>(6)  = (temp.at<float>(4)* (*iter).at<float>(2)) + (temp.at<float>(5)* (*iter).at<float>(6)) + (temp.at<float>(6)* (*iter).at<float>(10)) + (temp.at<float>(7)* (*iter).at<float>(14));
+            res.at<float>(7)  = (temp.at<float>(4)* (*iter).at<float>(3)) + (temp.at<float>(5)* (*iter).at<float>(7)) + (temp.at<float>(6)* (*iter).at<float>(11)) + (temp.at<float>(7)* (*iter).at<float>(15));
+            res.at<float>(8)  = (temp.at<float>(8)* (*iter).at<float>(0)) + (temp.at<float>(9)* (*iter).at<float>(4)) + (temp.at<float>(10)* (*iter).at<float>(8)) + (temp.at<float>(11)* (*iter).at<float>(12));
+            res.at<float>(9)  = (temp.at<float>(8)* (*iter).at<float>(1)) + (temp.at<float>(9)* (*iter).at<float>(5)) + (temp.at<float>(10)* (*iter).at<float>(9)) + (temp.at<float>(11)* (*iter).at<float>(13));
+            res.at<float>(10) = (temp.at<float>(8)* (*iter).at<float>(2)) + (temp.at<float>(9)* (*iter).at<float>(6)) + (temp.at<float>(10)* (*iter).at<float>(10)) + (temp.at<float>(11)* (*iter).at<float>(14));
+            res.at<float>(11) = (temp.at<float>(8)* (*iter).at<float>(3)) + (temp.at<float>(9)* (*iter).at<float>(7)) + (temp.at<float>(10)* (*iter).at<float>(11)) + (temp.at<float>(11)* (*iter).at<float>(15));
+            res.at<float>(12) = (temp.at<float>(12)* (*iter).at<float>(0)) + (temp.at<float>(13)* (*iter).at<float>(4)) + (temp.at<float>(14)* (*iter).at<float>(8)) + (temp.at<float>(15)* (*iter).at<float>(12));
+            res.at<float>(13) = (temp.at<float>(12)* (*iter).at<float>(1)) + (temp.at<float>(13)* (*iter).at<float>(5)) + (temp.at<float>(14)* (*iter).at<float>(9)) + (temp.at<float>(15)* (*iter).at<float>(13));
+            res.at<float>(14) = (temp.at<float>(12)* (*iter).at<float>(2)) + (temp.at<float>(13)* (*iter).at<float>(6)) + (temp.at<float>(14)* (*iter).at<float>(10)) + (temp.at<float>(15)* (*iter).at<float>(14));
+            res.at<float>(15) = (temp.at<float>(12)* (*iter).at<float>(3)) + (temp.at<float>(13)* (*iter).at<float>(7)) + (temp.at<float>(14)* (*iter).at<float>(11)) + (temp.at<float>(15)* (*iter).at<float>(15));
             res.copyTo(temp);
         }
     }

@@ -78,7 +78,7 @@ void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoef
     newCameraMatrix.at<double>(1, 2) += y_shift; //adjust c_y by y_shift
 
 
-    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), newCameraMatrix, rviewSize, CV_8UC1, map1, map2);
+    initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), cameraMatrix, rviewSize, CV_8UC1, map1, map2);
 
     int i = 0;
 

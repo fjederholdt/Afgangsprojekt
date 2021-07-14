@@ -353,7 +353,7 @@ void Analyse::on_visualiser_clicked()
 
         for( int i = 0; i < histSize; i++ )
         {
-            cv::rectangle( histImage, Point( bin_w*(i), cvRound(hist_h) ),
+                cv::rectangle( histImage, Point( bin_w*(i), cvRound(hist_h) ),
                 Point( bin_w*(i), hist_h - cvRound(repErrors.at(i)*500) ),
                 Scalar(255,0,0), 2, 8, 0  );
         }
@@ -456,6 +456,8 @@ void Analyse::on_annuller_clicked()
 
 void Analyse::on_hvis_charuco_clicked()
 {
+    //param.cornerRefinementMethod = aruco.CORNER_REFINE_SUBPIX     Kan bruges til at forbedre præcisionen af marker corners og id. Kan være nødvendig får os.
+
     QItemSelectionModel * select = ui->tableWidget->selectionModel();
     QList<QModelIndex> rows = select->selectedRows();
     if(rows.size() == 1)
@@ -467,6 +469,7 @@ void Analyse::on_hvis_charuco_clicked()
         string kalibPath = path+datoStr.toStdString();
         string sub;
         vector<string> billedePath;
+
         for(const auto & entry : directory_iterator(kalibPath))
         {
             sub = entry.path();
@@ -488,6 +491,24 @@ void Analyse::on_hvis_charuco_clicked()
 
         Mat map1, map2;
         vector<Mat> rview;
+        cv::Point2f cornerDistThresh(140.0,140.0);
+
+        cv::Point2f p3;
+        cv::Point2f p4;
+        cv::Point2f p5;
+        cv::Point2f p6;
+        cv::Point2f p7;
+        cv::Point2f midP;
+        cv::Point2f rotatedVec;
+        cv::Point2f sharpVec;
+        double pixVecx = 0;
+        double pixVecy = 0;
+        double pixelLength = 0;
+        double pMidx = 0;
+        double pMidy = 0;
+        Mat temp;
+        float pixToMM = 0;
+
 
         remapping(grayImages, cameraMatrix, distCoeffs, map1, map2, rview);
 
@@ -500,22 +521,116 @@ void Analyse::on_hvis_charuco_clicked()
 
                 std::vector<cv::Point2f> charucoCorners;
                 std::vector<int> charucoIds;
-
+                int markcount = 0;
 
                 for(vector<Mat>::iterator iter = rview.begin(); iter != rview.end(); iter++)
                 {
                     Mat inputImage = *iter;
+                    temp = inputImage;
+                    markcount++;
                     cv::aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params);
+                    cout << "Billed nr: " << markcount << " med antal CharucoIDs: " << markerIds.size() << endl;
                     if (markerIds.size() > 0)
                     {
                         cv::aruco::drawDetectedMarkers(inputImage, markerCorners, markerIds, cv::Scalar(255,0,0));
-                        std::vector<cv::Point2f> charucoCorners;
-                        std::vector<int> charucoIds;
-                        cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImages.at(0), board, charucoCorners, charucoIds);
-                                // if at least one charuco corner detected
+                        cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, inputImage, board, charucoCorners, charucoIds);
+                        // if at least one charuco corner detected
                         if (charucoIds.size() > 0)
                         {
                             cv::aruco::drawDetectedCornersCharuco(inputImage, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));
+                        }
+                    }
+                    for (int i=0; i<charucoIds.size(); i++)
+                    {
+                        if (charucoIds.at(0) == i)
+                        {
+                            if (charucoIds.at(1) == charucoIds.at(0) + 1 )
+                            {
+                                cout << "Første hjørne koordinator: " << charucoCorners.at(0) << endl;
+                                cout << "Andet hjørne koordinator: "  << charucoCorners.at(1) << endl;
+
+
+                                if (fdim(charucoCorners.at(0).x , charucoCorners.at(1).x) < cornerDistThresh.x)
+                                {
+                                    if (fdim(charucoCorners.at(0).y , charucoCorners.at(1).y) < cornerDistThresh.y)
+                                    {
+                                        cv::circle(inputImage, charucoCorners.at(0), 8, cv::Scalar(55,0,255), -2);
+                                        cv::circle(inputImage, charucoCorners.at(1), 8, cv::Scalar(55,0,255), -2);
+                                        cv::line(inputImage, charucoCorners.at(0), charucoCorners.at(1), cv::Scalar(0,0,255), 4);
+                                    }
+
+                                    //get the vector and calculate pythagoras to calculated pixels which are not x or y dominante faced.
+                                    pixVecx = charucoCorners.at(1).x - charucoCorners.at(0).x;
+                                    pixVecy = charucoCorners.at(1).y - charucoCorners.at(0).y;
+
+
+
+
+                                    p5.x = pixVecx;
+                                    p5.y = pixVecy;
+                                    pixelLength = sqrt(pow(pixVecx,2) + pow(pixVecy,2));
+                                    cout << "Final Pixel Length: " << pixelLength << endl;
+                                    pixToMM = float(20.0/pixelLength);
+                                    cout << "Pixels per MM: " << pixToMM << endl;
+
+
+
+
+                                    pMidx = (charucoCorners.at(0).x + charucoCorners.at(1).x)/2;
+                                    pMidy = (charucoCorners.at(0).y + charucoCorners.at(1).y)/2;
+                                    midP.x = pMidx;
+                                    midP.y = pMidy;
+                                    cout << "X value for midt: " << midP.x << " Y valude for midt: " << midP.y << endl;
+
+                                    rotatedVec.x = charucoCorners.at(1).x - midP.x;
+                                    rotatedVec.y = charucoCorners.at(1).y - midP.y;
+
+                                    // Tager midt funde midt punkt på linjen og addere den funde roteret vector så den står vinkelret på linjen.
+                                    p6.y = rotatedVec.x * (-1) + midP.y;
+                                    p6.x = rotatedVec.y + midP.x;
+                                    cv::line(inputImage, midP, p6, cv::Scalar(0,0,255), 4);
+
+                                    p7.x = (rotatedVec.y * (-1)) + midP.x;
+                                    p7.y = (rotatedVec.x * (-1)) * (-1) + midP.y;
+                                    cv::line(inputImage, midP, p7, cv::Scalar(0,0,255), 4);
+
+                                    sharpVec.x = (p7.x - p6.x) + p6.x;
+                                    sharpVec.y = (p7.y - p6.y) + p6.y;
+                                    cout << "sharpVec x: " << sharpVec.x << " sharpVec y: " << sharpVec.y << endl;
+                                    cv::line(inputImage, p6, p7, cv::Scalar(0,0,255), 4);
+
+
+
+
+                                    vector<Point2f> sharpHist;
+
+                                    cv::LineIterator it(temp, p6, p7, 8,false);
+                                    vector<int> buf;
+                                    //buf.resize(it.count);
+                                    for (int i=0; i<it.count;i++, ++it)
+                                    {
+                                        //cout << "Linje koordinator: " << it.pos() << endl;
+                                        buf.push_back((int)temp.at<uchar>(it.pos().x,it.pos().y));
+                                        //cout << buf.at(i) << endl;
+
+                                    }
+
+                                    float range[] = { 0, 256 }; //the upper boundary is exclusive
+                                    const float* histRange[] = { range };
+                                    int histSize = it.count;
+                                    int hist_w = 512;
+                                    int hist_h = 400;
+                                    int bin_w = cvRound( (double) hist_w/histSize );
+
+                                    Mat histImage(512, 400, CV_8UC1, Scalar( 0,0,0) );
+
+                                    for( int i = 1; i < histSize; i++ )
+                                    {
+                                        line( histImage, Point( bin_w*(i-1), hist_h - cvRound(buf.at(i-1)) ), Point( bin_w*(i), hist_h - cvRound(buf.at(i)) ), Scalar( 255, 0, 0), 2, 8, 0  );
+                                    }
+                                    imshow("calcHist Demo", histImage );
+                                }
+                            }
                         }
                     }
                     namedWindow("charucoMarkers", 1);

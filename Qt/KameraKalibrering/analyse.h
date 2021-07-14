@@ -15,10 +15,12 @@
 #include <vector>
 #include <time.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/matx.hpp>
+
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
