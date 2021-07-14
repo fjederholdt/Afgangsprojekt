@@ -172,6 +172,7 @@ void Analyse::on_test_kalibrering_clicked()
         fsCamera.readCamera(cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix);
         fsHandEye.readHandEye(hErotationMatrix, hEtranslationMatrix);
 
+
         fstream fin;
         fin.open(robotPosesCSV, ios::in);
         vector<string> rowPose;
@@ -230,7 +231,7 @@ void Analyse::on_test_kalibrering_clicked()
         vector<Point2f> charucoCorners;
         vector<int> charucoIds;
 
-        Mat rvec;
+        Mat rvec, rmat, tmat;
         Mat tvec(4,1,6);
 
         vector<vector<Point3f>> objectPoints = board->objPoints;
@@ -243,11 +244,19 @@ void Analyse::on_test_kalibrering_clicked()
 
         aruco::drawDetectedCornersCharuco(grayImage, charucoCorners, charucoIds);
 
+        solvePnP(Mat(objectPoints.at(0)), Mat(markerCorners.at(0)), cameraMatrix, distCoeffs, rvec, tmat);
+
+        cout << "rvec: " << rvec << endl;
+        Rodrigues(rvec, rmat);
+        cout << "rmat: " << rmat << endl;
+        cout << "tmat: " << tmat << endl;
+
+
         namedWindow("gray", 1);
         imshow("gray", grayImage);
 
-        tvec.at<double>(0) = charucoCorners.at(0).x*0.00023;
-        tvec.at<double>(1) = charucoCorners.at(0).y*0.00023;
+        tvec.at<double>(0) = 0;//charucoCorners.at(0).x*0.00023;
+        tvec.at<double>(1) = 0;//charucoCorners.at(0).y*0.00023;
         tvec.at<double>(2) = 0;
         tvec.at<double>(3) = 1;
 
@@ -263,11 +272,15 @@ void Analyse::on_test_kalibrering_clicked()
         Mat handEyeMat (4,4,CV_64F);
         Mat cameraMat(4,4,CV_64F);
         Mat cameraMat2(4,4,CV_64F);
+        Mat solvepnpMat(4,4,CV_64F);
+        Mat base2TCP(4,4,CV_64F);
         DHParams dhp(joint_positions);
         dhp.calculateDH();
 
         cout << "robot: " << dhp.getMatrix() << endl;
-        multi.push_back(dhp.getMatrix());
+        base2TCP = dhp.getMatrix();
+
+        multi.push_back(base2TCP);
 
         handEyeMat.at<double>(0) = hErotationMatrix.at<double>(0);
         handEyeMat.at<double>(1) = hErotationMatrix.at<double>(1);
@@ -327,6 +340,25 @@ void Analyse::on_test_kalibrering_clicked()
 
         cout << "cameraMat2: " << cameraMat2 << endl;
 
+        solvepnpMat.at<double>(0) = rmat.at<double>(0);
+        solvepnpMat.at<double>(1) = rmat.at<double>(1);
+        solvepnpMat.at<double>(2) = rmat.at<double>(2);
+        solvepnpMat.at<double>(3) = tmat.at<double>(0);
+        solvepnpMat.at<double>(4) = rmat.at<double>(3);
+        solvepnpMat.at<double>(5) = rmat.at<double>(4);
+        solvepnpMat.at<double>(6) = rmat.at<double>(5);
+        solvepnpMat.at<double>(7) = tmat.at<double>(1);
+        solvepnpMat.at<double>(8) = rmat.at<double>(6);
+        solvepnpMat.at<double>(9) = rmat.at<double>(7);
+        solvepnpMat.at<double>(10) = rmat.at<double>(8);
+        solvepnpMat.at<double>(11) = tmat.at<double>(2);
+        solvepnpMat.at<double>(12) = 0;
+        solvepnpMat.at<double>(13) = 0;
+        solvepnpMat.at<double>(14) = 0;
+        solvepnpMat.at<double>(15) = 1;
+
+        cout << "solvepnp: " << solvepnpMat << endl;
+
         Mat zRot = Mat::zeros(4,4,6);
 
         zRot.at<double>(0,0) = 1;
@@ -338,12 +370,16 @@ void Analyse::on_test_kalibrering_clicked()
 
         cout << "newRot: " << newRot << endl;
 
-        multi.push_back(cameraMat);
+        multi.push_back(cameraMat2);
 
 
         robot2Target = dhp.multiplyDH(multi);
 
         cout << "robot2Target: " << robot2Target << endl;
+
+        Mat robot2Target2 = base2TCP * handEyeMat * cameraMat2;
+
+         cout << "robot2Target without dhp: " << robot2Target2 << endl;
 
         Mat displacement;
 
