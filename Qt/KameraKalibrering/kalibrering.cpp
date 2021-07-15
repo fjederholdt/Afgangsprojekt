@@ -203,7 +203,10 @@ void Kalibrering::on_kalibrere_clicked()
 
             remapping(images, cameraMatrix, distCoeffs, map1, map2, imagesRemap);
 
-            //charucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
+            charucoBoardPose(images, cameraMatrix, distCoeffs, charucoCorners, charucoIds, rvectors, tvectors);
+
+            //vector<Mat> solvePnPRotationMatrix, solvePnPTranslationMatrix;
+            //solvePNPCamera(images, cameraMatrix, distCoeffs, solvePnPRotationMatrix, solvePnPTranslationMatrix);
 
             vector<Mat> rmVec;
             vector<Mat> tmVec;
@@ -217,6 +220,14 @@ void Kalibrering::on_kalibrere_clicked()
 
             Mat cam2GripRM, cam2GripTM;
             calibrateHandEye(rmVec, tmVec, rotationMat, translationMat, cam2GripRM, cam2GripTM);
+            cout << "CAM: " << cam2GripRM << cam2GripTM << endl;
+
+           // calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
+            //cout << "CHARUCO: " << cam2GripRM << cam2GripTM << endl;
+
+            //calibrateHandEye(rmVec, tmVec, solvePnPRotationMatrix, solvePnPTranslationMatrix, cam2GripRM, cam2GripTM);
+            //cout << "SOLVEPNP: " << cam2GripRM << cam2GripTM << endl;
+
             fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
 
             QMessageBox msg;

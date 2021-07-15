@@ -5,14 +5,25 @@ using namespace std;
 
 vector<double> calibrateCharuco(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<vector<Point2f>>& charucoCorners, vector<vector<int>>& charucoIds, vector<Mat>& rotationMat, vector<Mat>& translationMat)
 {
+    /*params->adaptiveThreshWinSizeMin = 5;
+    params->adaptiveThreshWinSizeMax = 21;
+    params->adaptiveThreshWinSizeStep = 2;
+    params->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
+    params->cornerRefinementMaxIterations = 50;
+    */
+
     vector<vector<Point2f>> markerCorners;
+    vector<vector<Point2f>> rejectedMarkers;
     vector<int> markerIds;
+    vector<int> recoveredIds;
     Size imageSize = Size(images.at(0).rows, images.at(0).cols);
 
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         Mat inputImage = *iter;
-        aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params);
+
+        aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params, rejectedMarkers);
+
         if (markerIds.size() > 0)
         {
             vector<Point2f> arucoCorners;
@@ -34,12 +45,12 @@ void charucoBoardPose(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, v
     for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
     {
         Mat inputImage = *iter;
-        aruco::drawDetectedCornersCharuco(inputImage, charucoCorners.at(i), charucoIds.at(i));
+        //aruco::drawDetectedCornersCharuco(inputImage, charucoCorners.at(i), charucoIds.at(i));
         Vec3d rvec, tvec;
         bool valid = aruco::estimatePoseCharucoBoard(charucoCorners.at(i), charucoIds.at(i), board, cameraMatrix, distCoeffs, rvec, tvec);
         if (valid)
         {
-            aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
+            //aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvec, tvec, 0.1);
             Mat rMat;
             Mat tMat(3,1,CV_64F);
             Rodrigues(rvec, rMat);
@@ -88,7 +99,7 @@ void charucoPoints(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vect
             {
                 vector<Point2f> arucoCorners;
                 vector<int> arucoIds;
-                aruco::interpolateCornersCharuco(markerCorners, markerIds, inputImage, board, arucoCorners, arucoIds);
+                aruco::interpolateCornersCharuco(markerCorners, markerIds, inputImage, board, arucoCorners, arucoIds, cameraMatrix, distCoeffs);
                 if (arucoIds.size() > 0)
                 {
                     Vec3d rvec, tvec;
@@ -113,6 +124,74 @@ void charucoPoints(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vect
     }
 
 }
+
+void solvePNPCamera(vector<Mat>& images, Mat& cameraMatrix, Mat& distCoeffs, vector<Mat>& rotationMatrix, vector<Mat>& translationMatrix)
+{
+    vector<Point3f> objectPoints;
+
+    for (int i = 0; i < chessboardDim.height; i++)
+    {
+        for (int j = 0; j < chessboardDim.width; j++)
+        {
+            objectPoints.push_back(Point3d(double(j*chessSquareDim),double(i*chessSquareDim),0.0));
+        }
+    }
+
+    for (vector<Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
+    {
+        Mat inputImage = *iter;
+
+        Mat rvec, tvec;
+        Mat rmat;
+
+        vector<vector<Point2f>> markerCorners;
+        vector<int> markerIds;
+
+        vector<Point2f> charucoCorners;
+        vector<int> charucoIds;
+
+        aruco::detectMarkers(inputImage, board->dictionary, markerCorners, markerIds, params);//, noArray(), cameraMatrix, distCoeffs);
+
+        if(markerIds.size() > 0)
+        {
+            aruco::interpolateCornersCharuco(markerCorners, markerIds, inputImage, board, charucoCorners, charucoIds);//, cameraMatrix, distCoeffs);
+
+            //aruco::drawDetectedCornersCharuco(inputImage, charucoCorners, charucoIds,Scalar(255,0,0));
+            //namedWindow("test", 1);
+            //imshow("test", inputImage);
+            //waitKey(0);
+            vector<Point3f> objectPointsWithIds;
+            for(size_t i = 0; i < charucoIds.size(); i++)
+            {
+                for(size_t j = 0; j < objectPoints.size(); j++)
+                {
+                    if((int)j == charucoIds.at(i))
+                    {
+                        objectPointsWithIds.push_back(objectPoints.at(j));
+                        break;
+                    }
+                }
+            }
+
+            cout << "size obj: " << objectPointsWithIds.size() << endl;
+            cout << "size ids: " << charucoIds.size() << endl;
+
+            solvePnP(objectPointsWithIds, charucoCorners, cameraMatrix, distCoeffs, rvec, tvec);
+            Rodrigues(rvec, rmat);
+            rotationMatrix.push_back(rmat);
+            translationMatrix.push_back(tvec);
+
+            cout << "pic is good" << endl;
+        }
+        else
+            cout << "pic is bad" << endl;
+
+
+
+    }
+
+}
+
 
 void remapping(vector<Mat>& images, const Mat& cameraMatrix, const Mat& distCoeffs, Mat& map1, Mat& map2, vector<Mat>& rview)
 {

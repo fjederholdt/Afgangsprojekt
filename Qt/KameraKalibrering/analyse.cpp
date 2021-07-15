@@ -205,6 +205,16 @@ void Analyse::on_test_kalibrering_clicked()
         RTDEReceiveInterface rtde_receive(hostname);
         RTDEControlInterface rtde_control(hostname);
 
+        for (size_t i = 0; i < robotPoses.at(0).size(); i++)
+        {
+            cout << "robotPose: " << robotPoses.at(0).at(i) << endl;
+        }
+
+        DHParams dhpPose(robotPoses.at(0));
+        dhpPose.calculateDH();
+
+        cout << "robotPose mat: " << dhpPose.getMatrix() << endl;
+
         rtde_control.moveJ(robotPoses.at(0));
 
         std::vector<double> joint_positions = rtde_receive.getActualQ();
@@ -231,29 +241,80 @@ void Analyse::on_test_kalibrering_clicked()
         vector<Point2f> charucoCorners;
         vector<int> charucoIds;
 
-        Mat rvec, rmat, tmat;
+        Mat rvec(1,3,6);
+        Mat tmat(3,1,6);
         Mat tvec(4,1,6);
+        Mat rmat;
 
-        vector<vector<Point3f>> objectPoints = board->objPoints;
+        vector<Point3f> objectPoints;
+        vector<Point3f> objectPointsCorners;
+        vector<Point2f> markers;
+        vector<Point2f> corners;
+
+        for(size_t i = 0; i < board->objPoints.at(0).size(); i++)
+        {
+            objectPoints.push_back(board->objPoints.at(0).at(i));
+        }
+
         vector<vector<Point2f>> markerCorners;
         vector<int> markerIds;
 
-        aruco::detectMarkers(grayImage, board->dictionary, markerCorners, markerIds, params);
+        aruco::detectMarkers(grayImage, board->dictionary, markerCorners, markerIds, params, noArray(), cameraMatrix, distCoeffs);
 
-        aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImage, board, charucoCorners, charucoIds);
+        aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImage, board, charucoCorners, charucoIds, cameraMatrix, distCoeffs);
 
-        aruco::drawDetectedCornersCharuco(grayImage, charucoCorners, charucoIds);
+        for(size_t i = 0; i < markerCorners.at(0).size(); i++)
+        {
+            markers.push_back(markerCorners.at(0).at(i));
+        }
 
-        solvePnP(Mat(objectPoints.at(0)), Mat(markerCorners.at(0)), cameraMatrix, distCoeffs, rvec, tmat);
+        for (int i = 0; i < chessboardDim.height; i++)
+            for (int j = 0; j < chessboardDim.width; j++)
+            {
+                objectPointsCorners.push_back(Point3d(double(j*chessSquareDim),double(i*chessSquareDim),0.0));
+            }
+
+        vector<Point3f> objectPointsWithIds;
+        for(size_t i = 0; i < charucoIds.size(); i++)
+        {
+            for(size_t j = 0; j < objectPointsCorners.size(); j++)
+            {
+                if((int)j == charucoIds.at(i))
+                {
+                    objectPointsWithIds.push_back(objectPointsCorners.at(j));
+                    break;
+                }
+            }
+        }
+
+        cout << "objectPoints: " << objectPointsWithIds.size() << endl;
+
+        cout << "size charucocorners: " << objectPointsCorners.size() << endl;
+        cout << "size charuco: " << charucoCorners.size() << endl;
+        while(objectPointsCorners.size() > charucoCorners.size())
+        {
+            objectPointsCorners.pop_back();
+        }
+        cout << "size charucocorners: " << objectPointsCorners.size() << endl;
+        cout << "size charuco: " << charucoCorners.size() << endl;
+
+        solvePnP(objectPointsWithIds, charucoCorners, cameraMatrix, distCoeffs, rvec, tmat);
 
         cout << "rvec: " << rvec << endl;
         Rodrigues(rvec, rmat);
         cout << "rmat: " << rmat << endl;
         cout << "tmat: " << tmat << endl;
 
+        /*solvePnP(objectPoints, markers, cameraMatrix, distCoeffs, rvec, tmat);
 
-        namedWindow("gray", 1);
-        imshow("gray", grayImage);
+        cout << "rvec: " << rvec << endl;
+        Rodrigues(rvec, rmat);
+        cout << "rmat: " << rmat << endl;
+        cout << "tmat: " << tmat << endl;
+*/
+
+       // namedWindow("gray", 1);
+       // imshow("gray", grayImage);*/
 
         tvec.at<double>(0) = 0;//charucoCorners.at(0).x*0.00023;
         tvec.at<double>(1) = 0;//charucoCorners.at(0).y*0.00023;
@@ -268,12 +329,13 @@ void Analyse::on_test_kalibrering_clicked()
         cout << "tmat: " << tMats.at(0) << endl;
 
         vector<Mat> multi;
-        Mat robot2Target(4,4,CV_64F);
-        Mat handEyeMat (4,4,CV_64F);
-        Mat cameraMat(4,4,CV_64F);
-        Mat cameraMat2(4,4,CV_64F);
-        Mat solvepnpMat(4,4,CV_64F);
         Mat base2TCP(4,4,CV_64F);
+        Mat robot2Target(4, 4, CV_64F);
+        Mat handEyeMat = Mat::eye(4, 4, CV_64F);
+        Mat cameraMat = Mat::eye(4, 4, CV_64F);
+        Mat cameraMat2 = Mat::eye(4, 4, CV_64F);
+        Mat solvepnpMat = Mat::eye(4, 4, CV_64F);
+
         DHParams dhp(joint_positions);
         dhp.calculateDH();
 
@@ -282,104 +344,39 @@ void Analyse::on_test_kalibrering_clicked()
 
         multi.push_back(base2TCP);
 
-        handEyeMat.at<double>(0) = hErotationMatrix.at<double>(0);
-        handEyeMat.at<double>(1) = hErotationMatrix.at<double>(1);
-        handEyeMat.at<double>(2) = hErotationMatrix.at<double>(2);
-        handEyeMat.at<double>(3) = hEtranslationMatrix.at<double>(0);
-        handEyeMat.at<double>(4) = hErotationMatrix.at<double>(3);
-        handEyeMat.at<double>(5) = hErotationMatrix.at<double>(4);
-        handEyeMat.at<double>(6) = hErotationMatrix.at<double>(5);
-        handEyeMat.at<double>(7) = hEtranslationMatrix.at<double>(1);
-        handEyeMat.at<double>(8) = hErotationMatrix.at<double>(6);
-        handEyeMat.at<double>(9) = hErotationMatrix.at<double>(7);
-        handEyeMat.at<double>(10) = hErotationMatrix.at<double>(8);
-        handEyeMat.at<double>(11) = hEtranslationMatrix.at<double>(2);
-        handEyeMat.at<double>(12) = 0;
-        handEyeMat.at<double>(13) = 0;
-        handEyeMat.at<double>(14) = 0;
-        handEyeMat.at<double>(15) = 1;
+        handEyeMat(Range(0, 3), Range(0, 3)) = hErotationMatrix * 1;
+        handEyeMat(Range(0, 3), Range(3, 4)) = hEtranslationMatrix * 1;
 
         cout << "handeye: " << handEyeMat << endl;
         multi.push_back(handEyeMat);
 
-        cameraMat.at<double>(0) = camRotationMatrix.at<double>(0);
-        cameraMat.at<double>(1) = camRotationMatrix.at<double>(1);
-        cameraMat.at<double>(2) = camRotationMatrix.at<double>(2);
-        cameraMat.at<double>(3) = camTranslationMatrix.at<double>(0);
-        cameraMat.at<double>(4) = camRotationMatrix.at<double>(3);
-        cameraMat.at<double>(5) = camRotationMatrix.at<double>(4);
-        cameraMat.at<double>(6) = camRotationMatrix.at<double>(5);
-        cameraMat.at<double>(7) = camTranslationMatrix.at<double>(1);
-        cameraMat.at<double>(8) = camRotationMatrix.at<double>(6);
-        cameraMat.at<double>(9) = camRotationMatrix.at<double>(7);
-        cameraMat.at<double>(10) = camRotationMatrix.at<double>(8);
-        cameraMat.at<double>(11) = camTranslationMatrix.at<double>(2);
-        cameraMat.at<double>(12) = 0;
-        cameraMat.at<double>(13) = 0;
-        cameraMat.at<double>(14) = 0;
-        cameraMat.at<double>(15) = 1;
+        cameraMat(Range(0, 3), Range(0, 3)) = camRotationMatrix * 1;
+        cameraMat(Range(0, 3), Range(3, 4)) = camTranslationMatrix * 1;
 
         cout << "cameraMat: " << cameraMat << endl;
 
-        cameraMat2.at<double>(0) = rMats.at(0).at<double>(0);
-        cameraMat2.at<double>(1) = rMats.at(0).at<double>(1);
-        cameraMat2.at<double>(2) = rMats.at(0).at<double>(2);
-        cameraMat2.at<double>(3) = tMats.at(0).at<double>(0);
-        cameraMat2.at<double>(4) = rMats.at(0).at<double>(3);
-        cameraMat2.at<double>(5) = rMats.at(0).at<double>(4);
-        cameraMat2.at<double>(6) = rMats.at(0).at<double>(5);
-        cameraMat2.at<double>(7) = tMats.at(0).at<double>(1);
-        cameraMat2.at<double>(8) = rMats.at(0).at<double>(6);
-        cameraMat2.at<double>(9) = rMats.at(0).at<double>(7);
-        cameraMat2.at<double>(10) = rMats.at(0).at<double>(8);
-        cameraMat2.at<double>(11) = tMats.at(0).at<double>(2);
-        cameraMat2.at<double>(12) = 0;
-        cameraMat2.at<double>(13) = 0;
-        cameraMat2.at<double>(14) = 0;
-        cameraMat2.at<double>(15) = 1;
+        cameraMat2(Range(0, 3), Range(0, 3)) = rMats.at(0) * 1;
+        cameraMat2(Range(0, 3), Range(3, 4)) = tMats.at(0) * 1;
 
         cout << "cameraMat2: " << cameraMat2 << endl;
 
-        solvepnpMat.at<double>(0) = rmat.at<double>(0);
-        solvepnpMat.at<double>(1) = rmat.at<double>(1);
-        solvepnpMat.at<double>(2) = rmat.at<double>(2);
-        solvepnpMat.at<double>(3) = tmat.at<double>(0);
-        solvepnpMat.at<double>(4) = rmat.at<double>(3);
-        solvepnpMat.at<double>(5) = rmat.at<double>(4);
-        solvepnpMat.at<double>(6) = rmat.at<double>(5);
-        solvepnpMat.at<double>(7) = tmat.at<double>(1);
-        solvepnpMat.at<double>(8) = rmat.at<double>(6);
-        solvepnpMat.at<double>(9) = rmat.at<double>(7);
-        solvepnpMat.at<double>(10) = rmat.at<double>(8);
-        solvepnpMat.at<double>(11) = tmat.at<double>(2);
-        solvepnpMat.at<double>(12) = 0;
-        solvepnpMat.at<double>(13) = 0;
-        solvepnpMat.at<double>(14) = 0;
-        solvepnpMat.at<double>(15) = 1;
+        solvepnpMat(Range(0, 3), Range(0, 3)) = rmat * 1;
+        solvepnpMat(Range(0, 3), Range(3, 4)) = tmat * 1;
 
         cout << "solvepnp: " << solvepnpMat << endl;
 
-        Mat zRot = Mat::zeros(4,4,6);
-
-        zRot.at<double>(0,0) = 1;
+        Mat zRot = Mat::eye(4,4,6);
         zRot.at<double>(1,1) = -1;
-        zRot.at<double>(2,2) = 1;
-        zRot.at<double>(3,3) = 1;
 
-        Mat newRot = cameraMat * zRot;
-
-        cout << "newRot: " << newRot << endl;
-
-        multi.push_back(cameraMat2);
-
+        multi.push_back(solvepnpMat);
 
         robot2Target = dhp.multiplyDH(multi);
 
         cout << "robot2Target: " << robot2Target << endl;
 
-        Mat robot2Target2 = base2TCP * handEyeMat * cameraMat2;
+        Mat newRot = zRot * robot2Target;
 
-         cout << "robot2Target without dhp: " << robot2Target2 << endl;
+        cout << "robot2Target with rot: " << newRot << endl;
 
         Mat displacement;
 
@@ -388,10 +385,10 @@ void Analyse::on_test_kalibrering_clicked()
 
         cout << displacement << endl;
 
-       /* cout << "displacement2: " << endl;
+        cout << "displacement2: " << endl;
         displacement = newRot* tvec;
 
-        cout << displacement << endl;*/
+        cout << displacement << endl;
 
         vector<double> IKpoints;
 
@@ -411,7 +408,7 @@ void Analyse::on_test_kalibrering_clicked()
 
         cartesian_positions.at(0) = displacement.at<double>(0);
         cartesian_positions.at(1) = displacement.at<double>(1);
-        cartesian_positions.at(2) = displacement.at<double>(2)+0.30;
+        cartesian_positions.at(2) = displacement.at<double>(2)+0.40;
         //rtde_control.moveL(cartesian_positions);
 
     }

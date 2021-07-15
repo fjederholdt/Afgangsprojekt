@@ -14,6 +14,7 @@
     void charucoBoardPose(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds, std::vector<cv::Mat>& rvectors, std::vector<cv::Mat>& tvectors);
     void detectCharuco(std::vector<cv::Mat>& images, std::vector<std::vector<cv::Point2f>>& charucoCorners, std::vector<std::vector<int>>& charucoIds);
     void charucoPoints(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<cv::Mat>& rvectors, std::vector<cv::Mat>& tvectors);
+    void solvePNPCamera(std::vector<cv::Mat>& images, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, std::vector<cv::Mat>& rotationMatrix, std::vector<cv::Mat>& translationMatrix);
     void remapping(std::vector<cv::Mat>& images, const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs, cv::Mat& map1, cv::Mat& map2, std::vector<cv::Mat>& rview);
     std::vector<cv::Mat> getImages(std::vector<std::string> paths);
     void caliSharpnes(std::vector<cv::Mat> rview);
@@ -22,7 +23,7 @@
     static const float arucoSquareDim = 0.015f;
     static const cv::Size chessboardDim = cv::Size(9, 14);
 
-    static const cv::Ptr<cv::aruco::DetectorParameters> params = cv::aruco::DetectorParameters::create();
+    static cv::Ptr<cv::aruco::DetectorParameters> params = cv::aruco::DetectorParameters::create();
     static const cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_100);
     static const cv::Ptr<cv::aruco::CharucoBoard> board = cv::aruco::CharucoBoard::create(chessboardDim.height, chessboardDim.width, chessSquareDim, arucoSquareDim, dictionary);
 

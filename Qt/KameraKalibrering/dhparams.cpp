@@ -189,7 +189,6 @@ Mat DHParams::multiplyDH(vector<Mat> rtMatrixVec)
             res.at<double>(15) = (temp.at<double>(12)* (*iter).at<double>(3))+(temp.at<double>(13)* (*iter).at<double>(7))+(temp.at<double>(14)* (*iter).at<double>(11))+(temp.at<double>(15)* (*iter).at<double>(15));
             res.copyTo(temp);
         }
-        cout << temp << endl;
     }
     return temp;
 }

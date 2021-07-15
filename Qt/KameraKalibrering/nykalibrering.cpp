@@ -327,7 +327,7 @@ void NyKalibrering::on_kalibrere_clicked()
             }
 
             Mat cam2GripRM, cam2GripTM;
-            calibrateHandEye(rmVec, tmVec, rvectors, tvectors, cam2GripRM, cam2GripTM);
+            calibrateHandEye(rmVec, tmVec, rotationMat, translationMat, cam2GripRM, cam2GripTM);
             fsHandEye.writeHandEye(cam2GripRM, cam2GripTM);
 
             QMessageBox msg;
