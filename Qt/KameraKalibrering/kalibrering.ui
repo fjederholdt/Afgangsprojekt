@@ -85,7 +85,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Remap</string>
+    <string>push</string>
    </property>
   </widget>
  </widget>

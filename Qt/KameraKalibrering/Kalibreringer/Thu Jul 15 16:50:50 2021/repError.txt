@@ -1,0 +1,24 @@
+repErrors: 
+image number: 0 = 0.273109
+image number: 1 = 0.184186
+image number: 2 = 0.201328
+image number: 3 = 0.231864
+image number: 4 = 0.19422
+image number: 5 = 0.219717
+image number: 6 = 0.226261
+image number: 7 = 0.226711
+image number: 8 = 0.214121
+image number: 9 = 0.20384
+image number: 10 = 0.181392
+image number: 11 = 0.258169
+image number: 12 = 0.233259
+image number: 13 = 0.246748
+image number: 14 = 0.203038
+image number: 15 = 0.262039
+image number: 16 = 0.216431
+image number: 17 = 0.248925
+image number: 18 = 0.223375
+image number: 19 = 0.249217
+image number: 20 = 0.233074
+image number: 21 = 0.27067
+Final Error: 0.228909

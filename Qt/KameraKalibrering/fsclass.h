@@ -9,12 +9,12 @@ class FSClass
 {
 public:
     FSClass(std::string fileName, std::string calibrationDate);
-    void writeCamera(cv::Mat cameraMatrix, cv::Mat distCoeffs);
+    void writeCamera(cv::Mat cameraMatrix, cv::Mat distCoeffs, cv::Mat camRotationMatrix, cv::Mat camTranslationMatrix);
     void writeRobot(cv::Mat rotationMatrix, cv::Mat translationMatrix);
     void writeHandEye(cv::Mat rotationMatrix, cv::Mat translationMatrix);
     void writeDate(std::string date);
     void write(cv::Mat data, std::string type);
-    void readCamera(cv::Mat& cameraMatrix, cv::Mat& distCoeffs);
+    void readCamera(cv::Mat& cameraMatrix, cv::Mat& distCoeffs, cv::Mat& camRotationMatrix, cv::Mat& camTranslationMatrix);
     void readRobot(cv::Mat& rotationMatrix, cv::Mat& translationMatrix);
     void readHandEye(cv::Mat& rotationMatrix, cv::Mat& translationMatrix);
     void readDate(std::string& date);

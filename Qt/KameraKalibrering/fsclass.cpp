@@ -8,10 +8,11 @@ FSClass::FSClass(string fileName, string calibrationDate) {
     _calibrationDate = calibrationDate;
 }
 
-void FSClass::writeCamera(Mat cameraMatrix, Mat distCoeffs){
+void FSClass::writeCamera(Mat cameraMatrix, Mat distCoeffs, Mat camRotationMatrix, Mat camTranslationMatrix){
     FileStorage fs(_fileName, FileStorage::WRITE);
     fs << "calibrationDate" << _calibrationDate;
     fs << "cameraMatrix" << cameraMatrix << "distCoeffs" << distCoeffs;
+    fs << "camRotationMatrix" << camRotationMatrix << "camTranslationMatrix" << camTranslationMatrix;
     fs.release();
 }
 
@@ -51,10 +52,12 @@ void FSClass::write(Mat data, string type){
         fs << "handEyeTranslationMatrix" << data;
 }
 
-void FSClass::readCamera(Mat& cameraMatrix, Mat& distCoeffs){
+void FSClass::readCamera(Mat& cameraMatrix, Mat& distCoeffs, Mat& camRotationMatrix, Mat& camTranslationMatrix){
     FileStorage fs(_fileName, FileStorage::READ);
     fs["cameraMatrix"] >> cameraMatrix;
     fs["distCoeffs"] >> distCoeffs;
+    fs["camRotationMatrix"] >> camRotationMatrix;
+    fs["camTranslationMatrix"] >> camTranslationMatrix;
     fs.release();
 }
 

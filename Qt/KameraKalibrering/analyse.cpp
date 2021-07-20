@@ -1,7 +1,9 @@
 #include "analyse.h"
 #include "ui_analyse.h"
+#include "dhparams.h"
 #include "fsclass.h"
 #include "kalibreringsFunktioner.h"
+#include "kameraFunktioner.h"
 
 using namespace std::filesystem;
 using namespace std;
@@ -43,6 +45,7 @@ void Analyse::setPath(std::string &mainPath)
         pathVector.push_back(sub);
     }
     ui->tableWidget->setRowCount(pathVector.size());
+    sort(pathVector.begin(), pathVector.end());
     vector<string> billedePathInit;
     std::string repErrorPath;
     fstream repin;
@@ -65,53 +68,57 @@ void Analyse::setPath(std::string &mainPath)
         for(int currentCol = 0; currentCol < maxCols; currentCol++)
         {
             switch(currentCol){
-                case 0:
+            case 0:
+            {
+                QTableWidgetItem *item = new QTableWidgetItem();
+                item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+                item->setText(QString::fromStdString(pathVector.at(i)));
+                ui->tableWidget->setItem(i,0,item);
+                break;
+            }
+            case 1:
+            {
+                QTableWidgetItem *item = new QTableWidgetItem();
+                item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+                item->setText(QString::fromStdString(std::to_string(billedePathInit.size())));
+                item->setTextAlignment(Qt::AlignCenter);
+                ui->tableWidget->setItem(i,1,item);
+                break;
+            }
+            case 2:
+            {
+                if(repErrorPath.empty())
                 {
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                    item->setText(QString::fromStdString(pathVector.at(i)));
-                    ui->tableWidget->setItem(i,0,item);
+                    item->setText(QString::fromStdString("0.00"));
+                    item->setTextAlignment(Qt::AlignRight);
+                    ui->tableWidget->setItem(i,2,item);
                     break;
                 }
-                case 1:
+                else
                 {
-                    QTableWidgetItem *item = new QTableWidgetItem();
-                    item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                    item->setText(QString::fromStdString(std::to_string(billedePathInit.size())));
-                    item->setTextAlignment(Qt::AlignCenter);
-                    ui->tableWidget->setItem(i,1,item);
-                    break;
-                }
-                case 2:
-                {
-                    if(repErrorPath.empty())
+                    repin.open(repErrorPath, ios::in);
+                    string line, sub;
+                    while(getline(repin, line))
                     {
-                        QTableWidgetItem *item = new QTableWidgetItem();
-                        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                        item->setText(QString::fromStdString("0.00"));
-                        item->setTextAlignment(Qt::AlignRight);
-                        ui->tableWidget->setItem(i,2,item);
-                        break;
-                    }
-                    else
-                    {
-                        repin.open(repErrorPath, ios::in);
-                        string line, sub;
-                        while(getline(repin, line))
+                        size_t found = line.find("Error:");
+                        if (found != std::string::npos)
                         {
-                            size_t found = line.find("=");
-                            sub = line.substr(found+2, line.size());
+                            sub = line.substr(found+6, line.size());
                         }
-                        repin.close();
-                        QTableWidgetItem *item = new QTableWidgetItem();
-                        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-                        item->setText(QString::fromStdString(sub));
-                        item->setTextAlignment(Qt::AlignRight);
-                        ui->tableWidget->setItem(i,2,item);
-                        repErrorPath.clear();
-                        break;
+
                     }
+                    repin.close();
+                    QTableWidgetItem *item = new QTableWidgetItem();
+                    item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+                    item->setText(QString::fromStdString(sub));
+                    item->setTextAlignment(Qt::AlignRight);
+                    ui->tableWidget->setItem(i,2,item);
+                    repErrorPath.clear();
+                    break;
                 }
+            }
             }
         }
         billedePathInit.clear();
@@ -160,109 +167,257 @@ void Analyse::on_test_kalibrering_clicked()
         int col = 0;
         QString datoStr = ui->tableWidget->item(row,col)->text();
         string kalibPath = path+datoStr.toStdString();
+        string robotPosesCSV = kalibPath+"/robotPoses.csv";
 
-        Mat grayImage, cameraMatrix, distCoeffs, map1, map2;
+        Mat grayImage, cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix, hErotationMatrix, hEtranslationMatrix;
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
+        FSClass fsHandEye(kalibPath+"/handEyeData.yml", datoStr.toStdString());
 
-        fsCamera.readCamera(cameraMatrix, distCoeffs);
+        fsCamera.readCamera(cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix);
+        fsHandEye.readHandEye(hErotationMatrix, hEtranslationMatrix);
 
-        int cameraExposure = 60000;
 
-        Pylon::PylonAutoInitTerm autoInitTerm;
-        try
+        fstream fin;
+        fin.open(robotPosesCSV, ios::in);
+        vector<string> rowPose;
+        string line, word;
+        vector<vector<double>> robotPoses;
+        while (robotPoses.size() == 0)
         {
-            CInstantCamera camera(CTlFactory::GetInstance().CreateFirstDevice());
-
-            GenApi::INodeMap& nodemap = camera.GetNodeMap();
-            camera.Open();
-
-            GenApi::CIntegerPtr width = nodemap.GetNode("Width");
-            GenApi::CIntegerPtr height = nodemap.GetNode("Height");
-
-            camera.MaxNumBuffer = 5;
-
-            CImageFormatConverter formatConverter;
-            formatConverter.OutputPixelFormat = PixelType_BGR8packed;
-
-            CPylonImage pylonImage;
-            Mat openCvImage;
-
-            GenApi::CEnumerationPtr exposureAuto( nodemap.GetNode( "ExposureAuto"));
-            if ( GenApi::IsWritable( exposureAuto))
+            vector<double> pose;
+            getline(fin, line);
+            stringstream s(line);
+            while(getline(s, word, ','))
             {
-                exposureAuto->FromString("Off");
-            }
-
-            GenApi::CFloatPtr exposureTime = nodemap.GetNode("ExposureTime");
-            if(exposureTime.IsValid())
-            {
-                if(cameraExposure >= exposureTime->GetMin() && cameraExposure <= exposureTime->GetMax())
+                size_t foundPng = word.find(".png");
+                size_t foundRobot = word.find("robot");
+                if(foundPng == std::string::npos && foundRobot == std::string::npos)
                 {
-                    exposureTime->SetValue(cameraExposure);
-                }
-                else
-                {
-                    exposureTime->SetValue(exposureTime->GetMin());
+                    rowPose.push_back(word);
                 }
             }
-            else
+            if(!rowPose.empty())
             {
-                std::cout << ">> Failed to set exposure value." << std::endl;
-            }
-
-            camera.StartGrabbing(5, GrabStrategy_LatestImageOnly);
-
-            CGrabResultPtr ptrGrabResult;
-
-            while(camera.IsGrabbing())
-            {
-                camera.RetrieveResult(2000, ptrGrabResult, TimeoutHandling_ThrowException);
-
-                if(ptrGrabResult->GrabSucceeded())
+                for	(size_t i = 0; i < rowPose.size(); i++)
                 {
-                    formatConverter.Convert(pylonImage, ptrGrabResult);
-                    openCvImage = Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
-
-                    cvtColor(openCvImage, grayImage, COLOR_BGR2GRAY);
-                    break;
+                    pose.push_back(stod(rowPose.at(i)));
                 }
+                robotPoses.push_back(pose);
             }
         }
-        catch (const GenericException &e)
+
+        RTDEReceiveInterface rtde_receive(hostname);
+        RTDEControlInterface rtde_control(hostname);
+
+        rtde_control.moveJ(robotPoses.at(0));
+
+        std::vector<double> joint_positions = rtde_receive.getActualQ();
+        for (size_t i = 0; i < joint_positions.size(); i++)
         {
-                    // Error handling
-                    cerr << "An exception occurred." << endl
-                        << e.GetDescription() << endl;
+            cout << joint_positions.at(i) << endl;
+
         }
+        std::vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
+        for (size_t i = 0; i < cartesian_positions.size(); i++)
+        {
+            cout << cartesian_positions.at(i) << endl;
+        }
+
+        tagBillede(grayImage, false);
 
         vector<Mat> grayVector, grayRemap;
         grayVector.push_back(grayImage);
-        remapping(grayVector, cameraMatrix, distCoeffs, map1, map2, grayRemap);
 
-        std::vector<int> markerIds;
-        std::vector<std::vector<cv::Point2f> > markerCorners;
-        cv::aruco::detectMarkers(grayRemap.at(0), board->dictionary, markerCorners, markerIds, params);
+        //remapping(grayVector, cameraMatrix, distCoeffs, map1, map2, grayRemap);
 
-        std::vector<cv::Point2f> charucoCorners;
-        std::vector<int> charucoIds;
+        vector<Mat> rMats;
+        vector<Mat> tMats;
+        vector<Point2f> charucoCorners;
+        vector<int> charucoIds;
 
-        Mat charucoCopy;
-        grayRemap.at(0).copyTo(charucoCopy);
-                //cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners2, charucoIds2, cv::Scalar(255,0,0));
+        Mat rvec, rmat, tmat;
+        Mat tvec(4,1,6);
 
-        if (markerIds.size() > 0)
+        vector<vector<Point3f>> objectPoints = board->objPoints;
+        vector<vector<Point2f>> markerCorners;
+        vector<int> markerIds;
+
+        aruco::detectMarkers(grayImage, board->dictionary, markerCorners, markerIds, params);
+
+        aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImage, board, charucoCorners, charucoIds);
+
+        aruco::drawDetectedCornersCharuco(grayImage, charucoCorners, charucoIds);
+
+        solvePnP(Mat(objectPoints.at(0)), Mat(markerCorners.at(0)), cameraMatrix, distCoeffs, rvec, tmat);
+
+        cout << "rvec: " << rvec << endl;
+        Rodrigues(rvec, rmat);
+        cout << "rmat: " << rmat << endl;
+        cout << "tmat: " << tmat << endl;
+
+
+        namedWindow("gray", 1);
+        imshow("gray", grayImage);
+
+        tvec.at<double>(0) = 0;//charucoCorners.at(0).x*0.00023;
+        tvec.at<double>(1) = 0;//charucoCorners.at(0).y*0.00023;
+        tvec.at<double>(2) = 0;
+        tvec.at<double>(3) = 1;
+
+        cout << "tvec: " << tvec << endl;
+
+        charucoPoints(grayVector, cameraMatrix, distCoeffs, rMats, tMats);
+
+        cout << "rmat: " << rMats.at(0) << endl;
+        cout << "tmat: " << tMats.at(0) << endl;
+
+        vector<Mat> multi;
+        Mat robot2Target(4,4,CV_64F);
+        Mat handEyeMat (4,4,CV_64F);
+        Mat cameraMat(4,4,CV_64F);
+        Mat cameraMat2(4,4,CV_64F);
+        Mat solvepnpMat(4,4,CV_64F);
+        Mat base2TCP(4,4,CV_64F);
+        DHParams dhp(joint_positions);
+        dhp.calculateDH();
+
+        cout << "robot: " << dhp.getMatrix() << endl;
+        base2TCP = dhp.getMatrix();
+
+        multi.push_back(base2TCP);
+
+        handEyeMat.at<double>(0) = hErotationMatrix.at<double>(0);
+        handEyeMat.at<double>(1) = hErotationMatrix.at<double>(1);
+        handEyeMat.at<double>(2) = hErotationMatrix.at<double>(2);
+        handEyeMat.at<double>(3) = hEtranslationMatrix.at<double>(0);
+        handEyeMat.at<double>(4) = hErotationMatrix.at<double>(3);
+        handEyeMat.at<double>(5) = hErotationMatrix.at<double>(4);
+        handEyeMat.at<double>(6) = hErotationMatrix.at<double>(5);
+        handEyeMat.at<double>(7) = hEtranslationMatrix.at<double>(1);
+        handEyeMat.at<double>(8) = hErotationMatrix.at<double>(6);
+        handEyeMat.at<double>(9) = hErotationMatrix.at<double>(7);
+        handEyeMat.at<double>(10) = hErotationMatrix.at<double>(8);
+        handEyeMat.at<double>(11) = hEtranslationMatrix.at<double>(2);
+        handEyeMat.at<double>(12) = 0;
+        handEyeMat.at<double>(13) = 0;
+        handEyeMat.at<double>(14) = 0;
+        handEyeMat.at<double>(15) = 1;
+
+        cout << "handeye: " << handEyeMat << endl;
+        multi.push_back(handEyeMat);
+
+        cameraMat.at<double>(0) = camRotationMatrix.at<double>(0);
+        cameraMat.at<double>(1) = camRotationMatrix.at<double>(1);
+        cameraMat.at<double>(2) = camRotationMatrix.at<double>(2);
+        cameraMat.at<double>(3) = camTranslationMatrix.at<double>(0);
+        cameraMat.at<double>(4) = camRotationMatrix.at<double>(3);
+        cameraMat.at<double>(5) = camRotationMatrix.at<double>(4);
+        cameraMat.at<double>(6) = camRotationMatrix.at<double>(5);
+        cameraMat.at<double>(7) = camTranslationMatrix.at<double>(1);
+        cameraMat.at<double>(8) = camRotationMatrix.at<double>(6);
+        cameraMat.at<double>(9) = camRotationMatrix.at<double>(7);
+        cameraMat.at<double>(10) = camRotationMatrix.at<double>(8);
+        cameraMat.at<double>(11) = camTranslationMatrix.at<double>(2);
+        cameraMat.at<double>(12) = 0;
+        cameraMat.at<double>(13) = 0;
+        cameraMat.at<double>(14) = 0;
+        cameraMat.at<double>(15) = 1;
+
+        cout << "cameraMat: " << cameraMat << endl;
+
+        cameraMat2.at<double>(0) = rMats.at(0).at<double>(0);
+        cameraMat2.at<double>(1) = rMats.at(0).at<double>(1);
+        cameraMat2.at<double>(2) = rMats.at(0).at<double>(2);
+        cameraMat2.at<double>(3) = tMats.at(0).at<double>(0);
+        cameraMat2.at<double>(4) = rMats.at(0).at<double>(3);
+        cameraMat2.at<double>(5) = rMats.at(0).at<double>(4);
+        cameraMat2.at<double>(6) = rMats.at(0).at<double>(5);
+        cameraMat2.at<double>(7) = tMats.at(0).at<double>(1);
+        cameraMat2.at<double>(8) = rMats.at(0).at<double>(6);
+        cameraMat2.at<double>(9) = rMats.at(0).at<double>(7);
+        cameraMat2.at<double>(10) = rMats.at(0).at<double>(8);
+        cameraMat2.at<double>(11) = tMats.at(0).at<double>(2);
+        cameraMat2.at<double>(12) = 0;
+        cameraMat2.at<double>(13) = 0;
+        cameraMat2.at<double>(14) = 0;
+        cameraMat2.at<double>(15) = 1;
+
+        cout << "cameraMat2: " << cameraMat2 << endl;
+
+        solvepnpMat.at<double>(0) = rmat.at<double>(0);
+        solvepnpMat.at<double>(1) = rmat.at<double>(1);
+        solvepnpMat.at<double>(2) = rmat.at<double>(2);
+        solvepnpMat.at<double>(3) = tmat.at<double>(0);
+        solvepnpMat.at<double>(4) = rmat.at<double>(3);
+        solvepnpMat.at<double>(5) = rmat.at<double>(4);
+        solvepnpMat.at<double>(6) = rmat.at<double>(5);
+        solvepnpMat.at<double>(7) = tmat.at<double>(1);
+        solvepnpMat.at<double>(8) = rmat.at<double>(6);
+        solvepnpMat.at<double>(9) = rmat.at<double>(7);
+        solvepnpMat.at<double>(10) = rmat.at<double>(8);
+        solvepnpMat.at<double>(11) = tmat.at<double>(2);
+        solvepnpMat.at<double>(12) = 0;
+        solvepnpMat.at<double>(13) = 0;
+        solvepnpMat.at<double>(14) = 0;
+        solvepnpMat.at<double>(15) = 1;
+
+        cout << "solvepnp: " << solvepnpMat << endl;
+
+        Mat zRot = Mat::zeros(4,4,6);
+
+        zRot.at<double>(0,0) = 1;
+        zRot.at<double>(1,1) = -1;
+        zRot.at<double>(2,2) = 1;
+        zRot.at<double>(3,3) = 1;
+
+        Mat newRot = cameraMat * zRot;
+
+        cout << "newRot: " << newRot << endl;
+
+        multi.push_back(cameraMat2);
+
+
+        robot2Target = dhp.multiplyDH(multi);
+
+        cout << "robot2Target: " << robot2Target << endl;
+
+        Mat robot2Target2 = base2TCP * handEyeMat * cameraMat2;
+
+        cout << "robot2Target without dhp: " << robot2Target2 << endl;
+
+        Mat displacement;
+
+        cout << "displacement: " << endl;
+        displacement = robot2Target* tvec;
+
+        cout << displacement << endl;
+
+        /* cout << "displacement2: " << endl;
+        displacement = newRot* tvec;
+
+        cout << displacement << endl;*/
+
+        vector<double> IKpoints;
+
+        /* IKpoints.push_back(displacement.at<double>(0));
+        IKpoints.push_back(displacement.at<double>(1));
+        IKpoints.push_back(displacement.at<double>(2));
+        IKpoints.push_back(robRvec.at<double>(0));
+        IKpoints.push_back(robRvec.at<double>(1));
+        IKpoints.push_back(robRvec.at<double>(2));
+
+        //cartesian_positions.at(2) -=30;
+        for(size_t i = 0; i < IKpoints.size(); i++)
         {
-            cv::aruco::drawDetectedMarkers(charucoCopy, markerCorners, markerIds);
-            std::vector<cv::Point2f> charucoCorners;
-            std::vector<int> charucoIds;
-            cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, grayImage, board, charucoCorners, charucoIds);
-        }
+            cout <<  IKpoints.at(i) << endl;
+        }af
+        */
 
-        //aruco::getBoardObjectAndImagePoints()
-
-        RTDEReceiveInterface rtde_receive(hostname);
-        std::vector<double> joint_positions = rtde_receive.getActualQ();
+        cartesian_positions.at(0) = displacement.at<double>(0);
+        cartesian_positions.at(1) = displacement.at<double>(1);
+        cartesian_positions.at(2) = displacement.at<double>(2)+0.30;
+        //rtde_control.moveL(cartesian_positions);
 
     }
     else if(rows.size() > 1)
@@ -281,14 +436,69 @@ void Analyse::on_test_kalibrering_clicked()
 
 }
 
-pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud){
-    pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-    viewer->setBackgroundColor (0, 0, 0);
+Mat getRm(Mat matrix)
+{
+    Mat rvec(3,1,6);
+    Mat rmat(3,3,6);
+
+    rmat.at<double>(0) = matrix.at<double>(0);
+    rmat.at<double>(1) = matrix.at<double>(1);
+    rmat.at<double>(2) = matrix.at<double>(2);
+    rmat.at<double>(3) = matrix.at<double>(4);
+    rmat.at<double>(4) = matrix.at<double>(5);
+    rmat.at<double>(5) = matrix.at<double>(6);
+    rmat.at<double>(6) = matrix.at<double>(8);
+    rmat.at<double>(7) = matrix.at<double>(9);
+    rmat.at<double>(8) = matrix.at<double>(10);
+
+    Rodrigues(rmat, rvec);
+    return rvec;
+}
+
+Mat getTm(Mat matrix)
+{
+    Mat tvec(3,1,6);
+
+    tvec.at<double>(0) = matrix.at<double>(3);
+    tvec.at<double>(1) = matrix.at<double>(7);
+    tvec.at<double>(2) = matrix.at<double>(11);
+
+    return tvec;
+}
+
+pcl::visualization::PCLVisualizer::Ptr viz (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, vector<Mat> cVRMatrix, vector<Mat> cVTMatrix){
+    Eigen::Affine3f affine = Eigen::Affine3f::Identity();
+
+    pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer ("3D Viewer"));
+    viewer->setBackgroundColor(0, 0, 0);
+
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> rgb(cloud, 0, 0, 255);
-    viewer->addPointCloud<pcl::PointXYZ> (cloud, rgb, "sample cloud");
-    viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
-    viewer->addCoordinateSystem (1);
-    viewer->initCameraParameters ();
+    viewer->addPointCloud<pcl::PointXYZ>(cloud, rgb, "sample cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
+
+    /*for(size_t i = 0; i < cloud->size(); i++)
+    {
+        Mat rvec;
+        Mat rmat = cVRMatrix.at(i);
+        Rodrigues(rmat, rvec);
+        Mat tvec = cVTMatrix.at(i);
+        float thetaX = rvec.at<float>(0);
+        float thetaY = rvec.at<float>(1);
+        float thetaZ = rvec.at<float>(2);
+
+        /*affine.rotate (Eigen::AngleAxisf (thetaX, Eigen::Vector3f::UnitX()));
+        affine.rotate (Eigen::AngleAxisf (thetaY, Eigen::Vector3f::UnitY()));
+        affine.rotate (Eigen::AngleAxisf (thetaZ, Eigen::Vector3f::UnitZ()));
+
+        affine.translation()[0] = tvec.at<float>(0);
+        affine.translation()[1] = tvec.at<float>(1);
+        affine.translation()[2] = tvec.at<float>(2);
+
+        viewer->addCoordinateSystem(1, affine);
+    }*/
+
+    viewer->addCoordinateSystem(1);
+    viewer->initCameraParameters();
     return (viewer);
 }
 
@@ -310,6 +520,7 @@ void Analyse::on_visualiser_clicked()
         QString datoStr = ui->tableWidget->item(row,0)->text();
         QString billeder = ui->tableWidget->item(row,1)->text();
         std::string kalibPath = path+datoStr.toStdString();
+        string robotPosesCSV = kalibPath+"/robotPoses.csv";
         string sub;
         for(const auto & entry : directory_iterator(kalibPath))
         {
@@ -330,11 +541,43 @@ void Analyse::on_visualiser_clicked()
             if(line != "repErrors: ")
             {
                 size_t found = line.find_first_of("=");
-                sub = line.substr(found+2, line.size());
-                repErrors.push_back(stod(sub));
+                if (found != std::string::npos)
+                {
+                    sub = line.substr(found+2, line.size());
+                    repErrors.push_back(stod(sub));
+                }
             }
         }
         repin.close();
+
+        fstream fin;
+        fin.open(robotPosesCSV, ios::in);
+        vector<string> rowPose;
+        string word;
+        vector<vector<double>> robotPoses;
+        while (robotPoses.size() == 0)
+        {
+            vector<double> pose;
+            getline(fin, line);
+            stringstream s(line);
+            while(getline(s, word, ','))
+            {
+                size_t foundPng = word.find(".png");
+                size_t foundRobot = word.find("robot");
+                if(foundPng == std::string::npos && foundRobot == std::string::npos)
+                {
+                    rowPose.push_back(word);
+                }
+            }
+            if(!rowPose.empty())
+            {
+                for	(size_t i = 0; i < rowPose.size(); i++)
+                {
+                    pose.push_back(stod(rowPose.at(i)));
+                }
+                robotPoses.push_back(pose);
+            }
+        }
 
         double max = *max_element(repErrors.begin(), repErrors.end());
         int image_nr;
@@ -353,9 +596,9 @@ void Analyse::on_visualiser_clicked()
 
         for( int i = 0; i < histSize; i++ )
         {
-                cv::rectangle( histImage, Point( bin_w*(i), cvRound(hist_h) ),
-                Point( bin_w*(i), hist_h - cvRound(repErrors.at(i)*500) ),
-                Scalar(255,0,0), 2, 8, 0  );
+            cv::rectangle( histImage, Point( bin_w*(i), cvRound(hist_h) ),
+                           Point( bin_w*(i), hist_h - cvRound(repErrors.at(i)*500) ),
+                           Scalar(255,0,0), 2, 8, 0  );
         }
         imwrite(kalibPath+"/histogram.jpg", histImage);
 
@@ -369,27 +612,41 @@ void Analyse::on_visualiser_clicked()
         ui->maxRep->setScaledContents(true);
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
-        FSClass fsRobot(kalibPath+"/robotData.yml", datoStr.toStdString());
         FSClass fsHandEye(kalibPath+"/handEyeData.yml", datoStr.toStdString());
 
-        Mat cameraMatrix, distCoeffs;
+        vector<Mat> cVRMatrix, cVTMatrix;
+        Mat cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix;
         Mat robotRm, robotTm;
         Mat handEyeRm, handEyeTm;
 
-        fsCamera.readCamera(cameraMatrix, distCoeffs);
-        fsRobot.readRobot(robotRm, robotTm);
+        fsCamera.readCamera(cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix);
+        cVRMatrix.push_back(camRotationMatrix);
+        cVTMatrix.push_back(camTranslationMatrix);
         fsHandEye.readHandEye(handEyeRm, handEyeTm);
 
 
-      /*  pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
+        DHParams dhp(robotPoses.at(0));
+        dhp.calculateDH();
+
+        robotTm = dhp.getTM();
+        robotRm = dhp.getRM();
+
+        cVTMatrix.push_back(robotTm);
+        cVTMatrix.push_back(handEyeTm);
+
+        cVRMatrix.push_back(robotRm);
+        cVRMatrix.push_back(handEyeRm);
+
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
 
         pcl::PointXYZ robot;
         pcl::PointXYZ camera;
         pcl::PointXYZ handeye;
 
-        camera._PointXYZ::x = cameraTm.at<double>(0);
-        camera._PointXYZ::y = cameraTm.at<double>(1);
-        camera._PointXYZ::z = cameraTm.at<double>(2);
+        camera._PointXYZ::x = camTranslationMatrix.at<double>(0);
+        camera._PointXYZ::y = camTranslationMatrix.at<double>(1);
+        camera._PointXYZ::z = camTranslationMatrix.at<double>(2);
 
         robot._PointXYZ::x = robotTm.at<double>(0);
         robot._PointXYZ::y = robotTm.at<double>(1);
@@ -408,16 +665,20 @@ void Analyse::on_visualiser_clicked()
 
         pcl::visualization::PCLVisualizer::Ptr viewer;
 
-        viewer = viz((pcl::PointCloud<pcl::PointXYZ>::ConstPtr)basic_cloud_ptr);
+        viewer = viz((pcl::PointCloud<pcl::PointXYZ>::ConstPtr)basic_cloud_ptr, cVRMatrix, cVTMatrix);
 
         while(!viewer->wasStopped())
         {
             viewer->spinOnce(100);
         }
+        if(viewer->wasStopped())
+        {
+            viewer->close();
+        }
         //qDebug() << kalibPath;
 
 
-
+        /*
 #include <pcl/visualization/pcl_visualizer.h>
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr myCloud(new PointCloud<pcl::PointXYZ>);
@@ -484,8 +745,8 @@ void Analyse::on_hvis_charuco_clicked()
         vector<Mat> grayImages;
 
         FSClass fsCamera(kalibPath+"/cameraData.yml", datoStr.toStdString());
-        Mat cameraMatrix, distCoeffs;
-        fsCamera.readCamera(cameraMatrix, distCoeffs);
+        Mat cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix;
+        fsCamera.readCamera(cameraMatrix, distCoeffs, camRotationMatrix, camTranslationMatrix);
 
         grayImages = getImages(billedePath);
 
@@ -563,18 +824,12 @@ void Analyse::on_hvis_charuco_clicked()
                                     pixVecx = charucoCorners.at(1).x - charucoCorners.at(0).x;
                                     pixVecy = charucoCorners.at(1).y - charucoCorners.at(0).y;
 
-
-
-
                                     p5.x = pixVecx;
                                     p5.y = pixVecy;
                                     pixelLength = sqrt(pow(pixVecx,2) + pow(pixVecy,2));
                                     cout << "Final Pixel Length: " << pixelLength << endl;
                                     pixToMM = float(20.0/pixelLength);
                                     cout << "Pixels per MM: " << pixToMM << endl;
-
-
-
 
                                     pMidx = (charucoCorners.at(0).x + charucoCorners.at(1).x)/2;
                                     pMidy = (charucoCorners.at(0).y + charucoCorners.at(1).y)/2;
@@ -599,18 +854,15 @@ void Analyse::on_hvis_charuco_clicked()
                                     cout << "sharpVec x: " << sharpVec.x << " sharpVec y: " << sharpVec.y << endl;
                                     cv::line(inputImage, p6, p7, cv::Scalar(0,0,255), 4);
 
-
-
-
                                     vector<Point2f> sharpHist;
 
-                                    cv::LineIterator it(temp, p6, p7, 8,false);
+                                    cv::LineIterator it(inputImage, p6, p7, 8,false);
                                     vector<int> buf;
                                     //buf.resize(it.count);
                                     for (int i=0; i<it.count;i++, ++it)
                                     {
                                         //cout << "Linje koordinator: " << it.pos() << endl;
-                                        buf.push_back((int)temp.at<uchar>(it.pos().x,it.pos().y));
+                                        buf.push_back((int)inputImage.at<uchar>(it.pos().x,it.pos().y));
                                         //cout << buf.at(i) << endl;
 
                                     }

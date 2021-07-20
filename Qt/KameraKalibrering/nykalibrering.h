@@ -14,6 +14,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include<unistd.h>
 
 #include <boost/filesystem.hpp>
 

@@ -58,6 +58,7 @@ SOURCES       = ../KameraKalibrering/analyse.cpp \
 		../KameraKalibrering/fsclass.cpp \
 		../KameraKalibrering/kalibrering.cpp \
 		../KameraKalibrering/kalibreringsFunktioner.cpp \
+		../KameraKalibrering/kameraFunktioner.cpp \
 		../KameraKalibrering/main.cpp \
 		../KameraKalibrering/mainwindow.cpp \
 		../KameraKalibrering/nykalibrering.cpp qrc_qmake_qmake_qm_files.cpp \
@@ -71,6 +72,7 @@ OBJECTS       = analyse.o \
 		fsclass.o \
 		kalibrering.o \
 		kalibreringsFunktioner.o \
+		kameraFunktioner.o \
 		main.o \
 		mainwindow.o \
 		nykalibrering.o \
@@ -263,6 +265,7 @@ DIST          = ../../../Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../KameraKalibrering/fsclass.h \
 		../KameraKalibrering/kalibrering.h \
 		../KameraKalibrering/kalibreringsFunktioner.h \
+		../KameraKalibrering/kameraFunktioner.h \
 		../KameraKalibrering/mainwindow.h \
 		../KameraKalibrering/nykalibrering.h ../KameraKalibrering/analyse.cpp \
 		../KameraKalibrering/analysefunktioner.cpp \
@@ -270,6 +273,7 @@ DIST          = ../../../Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../KameraKalibrering/fsclass.cpp \
 		../KameraKalibrering/kalibrering.cpp \
 		../KameraKalibrering/kalibreringsFunktioner.cpp \
+		../KameraKalibrering/kameraFunktioner.cpp \
 		../KameraKalibrering/main.cpp \
 		../KameraKalibrering/mainwindow.cpp \
 		../KameraKalibrering/nykalibrering.cpp
@@ -662,8 +666,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents ../KameraKalibrering/KameraKalibrering_da_DK.ts $(DISTDIR)/
 	$(COPY_FILE) --parents qmake_qmake_qm_files.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../Qt/5.15.2/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../KameraKalibrering/analyse.h ../KameraKalibrering/analysefunktioner.h ../KameraKalibrering/dhparams.h ../KameraKalibrering/fsclass.h ../KameraKalibrering/kalibrering.h ../KameraKalibrering/kalibreringsFunktioner.h ../KameraKalibrering/mainwindow.h ../KameraKalibrering/nykalibrering.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../KameraKalibrering/analyse.cpp ../KameraKalibrering/analysefunktioner.cpp ../KameraKalibrering/dhparams.cpp ../KameraKalibrering/fsclass.cpp ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibreringsFunktioner.cpp ../KameraKalibrering/main.cpp ../KameraKalibrering/mainwindow.cpp ../KameraKalibrering/nykalibrering.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../KameraKalibrering/analyse.h ../KameraKalibrering/analysefunktioner.h ../KameraKalibrering/dhparams.h ../KameraKalibrering/fsclass.h ../KameraKalibrering/kalibrering.h ../KameraKalibrering/kalibreringsFunktioner.h ../KameraKalibrering/kameraFunktioner.h ../KameraKalibrering/mainwindow.h ../KameraKalibrering/nykalibrering.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../KameraKalibrering/analyse.cpp ../KameraKalibrering/analysefunktioner.cpp ../KameraKalibrering/dhparams.cpp ../KameraKalibrering/fsclass.cpp ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibreringsFunktioner.cpp ../KameraKalibrering/kameraFunktioner.cpp ../KameraKalibrering/main.cpp ../KameraKalibrering/mainwindow.cpp ../KameraKalibrering/nykalibrering.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../KameraKalibrering/analyse.ui ../KameraKalibrering/kalibrering.ui ../KameraKalibrering/mainwindow.ui ../KameraKalibrering/nykalibrering.ui $(DISTDIR)/
 	$(COPY_FILE) --parents ../KameraKalibrering/KameraKalibrering_da_DK.ts $(DISTDIR)/
 
@@ -854,140 +858,6 @@ moc_analyse.cpp: ../KameraKalibrering/analyse.h \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/qgridlayout.h \
 		../../../Qt/5.15.2/gcc_64/include/QtGui/QPixmap \
-		/opt/pylon/include/pylon/PylonBase.h \
-		/opt/pylon/include/pylon/Platform.h \
-		/opt/pylon/include/pylon/api_autoconf.h \
-		/opt/pylon/include/pylon/stdinclude.h \
-		/opt/pylon/include/Base/GCNamespace.h \
-		/opt/pylon/include/GenICamVersion.h \
-		/opt/pylon/include/_GenICamVersion.h \
-		/opt/pylon/include/GenApi/GenApiNamespace.h \
-		/opt/pylon/include/pylon/TypeMappings.h \
-		/opt/pylon/include/Base/GCTypes.h \
-		/opt/pylon/include/Base/GCString.h \
-		/opt/pylon/include/Base/GCStringVector.h \
-		/opt/pylon/include/Base/GCException.h \
-		/opt/pylon/include/GenApi/Synch.h \
-		/opt/pylon/include/GenApi/GenApiDll.h \
-		/opt/pylon/include/pylon/PylonIncludes.h \
-		/opt/pylon/include/pylon/PylonLinkage.h \
-		/opt/pylon/include/Base/GCLinkage.h \
-		/opt/pylon/include/GenApi/GenApi.h \
-		/opt/pylon/include/Base/GCBase.h \
-		/opt/pylon/include/Base/GCArray.h \
-		/opt/pylon/include/Base/GCUtilities.h \
-		/opt/pylon/include/Base/GCRTSSUtilities.h \
-		/opt/pylon/include/GenApi/Pointer.h \
-		/opt/pylon/include/GenICamFwd.h \
-		/opt/pylon/include/GenApi/IEnumeration.h \
-		/opt/pylon/include/GenApi/IEnumEntry.h \
-		/opt/pylon/include/GenApi/IValue.h \
-		/opt/pylon/include/GenApi/Types.h \
-		/opt/pylon/include/GenApi/Autovector.h \
-		/opt/pylon/include/GenApi/IBase.h \
-		/opt/pylon/include/GenApi/Reference.h \
-		/opt/pylon/include/GenApi/INode.h \
-		/opt/pylon/include/GenApi/Container.h \
-		/opt/pylon/include/GenApi/IFloat.h \
-		/opt/pylon/include/GenApi/IInteger.h \
-		/opt/pylon/include/GenApi/ICategory.h \
-		/opt/pylon/include/GenApi/IRegister.h \
-		/opt/pylon/include/GenApi/IBoolean.h \
-		/opt/pylon/include/GenApi/IPort.h \
-		/opt/pylon/include/GenApi/IPortRecorder.h \
-		/opt/pylon/include/GenApi/IPortConstruct.h \
-		/opt/pylon/include/GenApi/IChunkPort.h \
-		/opt/pylon/include/GenApi/IString.h \
-		/opt/pylon/include/GenApi/INodeMap.h \
-		/opt/pylon/include/GenApi/IDestroy.h \
-		/opt/pylon/include/GenApi/IDeviceInfo.h \
-		/opt/pylon/include/GenApi/ISelector.h \
-		/opt/pylon/include/GenApi/ICommand.h \
-		/opt/pylon/include/GenApi/IUserData.h \
-		/opt/pylon/include/GenApi/NodeMapRef.h \
-		/opt/pylon/include/GenApi/NodeMapFactory.h \
-		/opt/pylon/include/GenApi/GenApiVersion.h \
-		/opt/pylon/include/GenApi/NodeCallback.h \
-		/opt/pylon/include/GenApi/Persistence.h \
-		/opt/pylon/include/GenApi/StructPort.h \
-		/opt/pylon/include/GenApi/PortImpl.h \
-		/opt/pylon/include/GenApi/SelectorSet.h \
-		/opt/pylon/include/GenApi/ISelectorDigit.h \
-		/opt/pylon/include/GenApi/GenApiLinkage.h \
-		/opt/pylon/include/pylon/PylonVersionInfo.h \
-		/opt/pylon/include/pylon/Info.h \
-		/opt/pylon/include/pylon/TlInfo.h \
-		/opt/pylon/include/pylon/DeviceClass.h \
-		/opt/pylon/include/pylon/DeviceInfo.h \
-		/opt/pylon/include/pylon/Container.h \
-		/opt/pylon/include/pylon/InterfaceInfo.h \
-		/opt/pylon/include/pylon/DeviceFactory.h \
-		/opt/pylon/include/pylon/DeviceAccessMode.h \
-		/opt/pylon/include/pylon/PylonVersionNumber.h \
-		/opt/pylon/include/pylon/TransportLayer.h \
-		/opt/pylon/include/pylon/Interface.h \
-		/opt/pylon/include/pylon/TlFactory.h \
-		/opt/pylon/include/pylon/EventAdapter.h \
-		/opt/pylon/include/pylon/Callback.h \
-		/opt/pylon/include/pylon/Device.h \
-		/opt/pylon/include/pylon/WaitObject.h \
-		/opt/pylon/include/pylon/WaitObjects.h \
-		/opt/pylon/include/pylon/StreamGrabber.h \
-		/opt/pylon/include/pylon/PixelType.h \
-		/opt/pylon/include/pylon/Pixel.h \
-		/opt/pylon/include/pylon/PixelTypeMapper.h \
-		/opt/pylon/include/GenApi/IEnumerationT.h \
-		/opt/pylon/include/GenApi/Compatibility.h \
-		/opt/pylon/include/pylon/Result.h \
-		/opt/pylon/include/pylon/PayloadType.h \
-		/opt/pylon/include/pylon/ResultImage.h \
-		/opt/pylon/include/pylon/Image.h \
-		/opt/pylon/include/pylon/PylonDataComponent.h \
-		/opt/pylon/include/pylon/PylonDataContainer.h \
-		/opt/pylon/include/pylon/ChunkParser.h \
-		/opt/pylon/include/pylon/EventGrabber.h \
-		/opt/pylon/include/pylon/EventGrabberProxy.h \
-		/opt/pylon/include/pylon/NodeMapProxy.h \
-		/opt/pylon/include/pylon/AcquireSingleFrameConfiguration.h \
-		/opt/pylon/include/pylon/InstantCamera.h \
-		/opt/pylon/include/pylon/ImageEventHandler.h \
-		/opt/pylon/include/pylon/GrabResultPtr.h \
-		/opt/pylon/include/pylon/GrabResultData.h \
-		/opt/pylon/include/pylon/ConfigurationEventHandler.h \
-		/opt/pylon/include/pylon/CameraEventHandler.h \
-		/opt/pylon/include/pylon/BufferFactory.h \
-		/opt/pylon/include/pylon/SfncVersion.h \
-		/opt/pylon/include/pylon/_InstantCameraParams.h \
-		/opt/pylon/include/pylon/ParameterIncludes.h \
-		/opt/pylon/include/pylon/ArrayParameter.h \
-		/opt/pylon/include/pylon/Parameter.h \
-		/opt/pylon/include/pylon/BooleanParameter.h \
-		/opt/pylon/include/pylon/CommandParameter.h \
-		/opt/pylon/include/pylon/EnumParameter.h \
-		/opt/pylon/include/pylon/FloatParameter.h \
-		/opt/pylon/include/pylon/IntegerParameter.h \
-		/opt/pylon/include/pylon/StringParameter.h \
-		/opt/pylon/include/pylon/EnumParameterT.h \
-		/opt/pylon/include/pylon/ConfigurationHelper.h \
-		/opt/pylon/include/pylon/InstantCameraArray.h \
-		/opt/pylon/include/pylon/AcquireContinuousConfiguration.h \
-		/opt/pylon/include/pylon/SoftwareTriggerConfiguration.h \
-		/opt/pylon/include/pylon/InstantInterface.h \
-		/opt/pylon/include/pylon/_BaslerUniversalInterfaceParams.h \
-		/opt/pylon/include/pylon/PylonUtilityIncludes.h \
-		/opt/pylon/include/pylon/PylonUtility.h \
-		/opt/pylon/include/pylon/PylonImage.h \
-		/opt/pylon/include/pylon/PylonImageBase.h \
-		/opt/pylon/include/pylon/ReusableImage.h \
-		/opt/pylon/include/pylon/ImagePersistence.h \
-		/opt/pylon/include/pylon/PixelData.h \
-		/opt/pylon/include/pylon/PylonImageUserBufferEventHandler.h \
-		/opt/pylon/include/pylon/ImageDecompressor.h \
-		/opt/pylon/include/pylon/ImageFormatConverter.h \
-		/opt/pylon/include/pylon/_ImageFormatConverterParams.h \
-		/opt/pylon/include/pylon/FeaturePersistence.h \
-		/opt/pylon/include/pylon/VideoWriter.h \
-		/opt/pylon/include/pylon/_VideoWriterParams.h \
 		moc_predefs.h \
 		../../../Qt/5.15.2/gcc_64/bin/moc
 	/home/andreas/Qt/5.15.2/gcc_64/bin/moc $(DEFINES) --include /home/andreas/Afgangsprojekt/Qt/build-KameraKalibrering-Desktop_Qt_5_15_2_GCC_64bit-Debug/moc_predefs.h -I/home/andreas/Qt/5.15.2/gcc_64/mkspecs/linux-g++ -I/home/andreas/Afgangsprojekt/Qt/KameraKalibrering -I/usr/local/include/opencv2 -I/opt/pylon/include -I/usr/include/pcl-1.10 -I/usr/include/vtk-7.1 -I/usr/include/eigen3 -I/home/andreas/Qt/5.15.2/gcc_64/include -I/home/andreas/Qt/5.15.2/gcc_64/include/QtWidgets -I/home/andreas/Qt/5.15.2/gcc_64/include/QtGui -I/home/andreas/Qt/5.15.2/gcc_64/include/QtCore -I. -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../KameraKalibrering/analyse.h -o moc_analyse.cpp
@@ -1878,6 +1748,11 @@ analyse.o: ../KameraKalibrering/analyse.cpp ../KameraKalibrering/analyse.h \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/qgridlayout.h \
 		../../../Qt/5.15.2/gcc_64/include/QtGui/QPixmap \
+		ui_analyse.h \
+		../KameraKalibrering/dhparams.h \
+		../KameraKalibrering/fsclass.h \
+		../KameraKalibrering/kalibreringsFunktioner.h \
+		../KameraKalibrering/kameraFunktioner.h \
 		/opt/pylon/include/pylon/PylonBase.h \
 		/opt/pylon/include/pylon/Platform.h \
 		/opt/pylon/include/pylon/api_autoconf.h \
@@ -2011,10 +1886,7 @@ analyse.o: ../KameraKalibrering/analyse.cpp ../KameraKalibrering/analyse.h \
 		/opt/pylon/include/pylon/_ImageFormatConverterParams.h \
 		/opt/pylon/include/pylon/FeaturePersistence.h \
 		/opt/pylon/include/pylon/VideoWriter.h \
-		/opt/pylon/include/pylon/_VideoWriterParams.h \
-		ui_analyse.h \
-		../KameraKalibrering/fsclass.h \
-		../KameraKalibrering/kalibreringsFunktioner.h
+		/opt/pylon/include/pylon/_VideoWriterParams.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o analyse.o ../KameraKalibrering/analyse.cpp
 
 analysefunktioner.o: ../KameraKalibrering/analysefunktioner.cpp ../KameraKalibrering/analysefunktioner.h
@@ -2521,6 +2393,143 @@ kalibrering.o: ../KameraKalibrering/kalibrering.cpp ../KameraKalibrering/kalibre
 
 kalibreringsFunktioner.o: ../KameraKalibrering/kalibreringsFunktioner.cpp ../KameraKalibrering/kalibreringsFunktioner.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o kalibreringsFunktioner.o ../KameraKalibrering/kalibreringsFunktioner.cpp
+
+kameraFunktioner.o: ../KameraKalibrering/kameraFunktioner.cpp ../KameraKalibrering/kameraFunktioner.h \
+		/opt/pylon/include/pylon/PylonBase.h \
+		/opt/pylon/include/pylon/Platform.h \
+		/opt/pylon/include/pylon/api_autoconf.h \
+		/opt/pylon/include/pylon/stdinclude.h \
+		/opt/pylon/include/Base/GCNamespace.h \
+		/opt/pylon/include/GenICamVersion.h \
+		/opt/pylon/include/_GenICamVersion.h \
+		/opt/pylon/include/GenApi/GenApiNamespace.h \
+		/opt/pylon/include/pylon/TypeMappings.h \
+		/opt/pylon/include/Base/GCTypes.h \
+		/opt/pylon/include/Base/GCString.h \
+		/opt/pylon/include/Base/GCStringVector.h \
+		/opt/pylon/include/Base/GCException.h \
+		/opt/pylon/include/GenApi/Synch.h \
+		/opt/pylon/include/GenApi/GenApiDll.h \
+		/opt/pylon/include/pylon/PylonIncludes.h \
+		/opt/pylon/include/pylon/PylonLinkage.h \
+		/opt/pylon/include/Base/GCLinkage.h \
+		/opt/pylon/include/GenApi/GenApi.h \
+		/opt/pylon/include/Base/GCBase.h \
+		/opt/pylon/include/Base/GCArray.h \
+		/opt/pylon/include/Base/GCUtilities.h \
+		/opt/pylon/include/Base/GCRTSSUtilities.h \
+		/opt/pylon/include/GenApi/Pointer.h \
+		/opt/pylon/include/GenICamFwd.h \
+		/opt/pylon/include/GenApi/IEnumeration.h \
+		/opt/pylon/include/GenApi/IEnumEntry.h \
+		/opt/pylon/include/GenApi/IValue.h \
+		/opt/pylon/include/GenApi/Types.h \
+		/opt/pylon/include/GenApi/Autovector.h \
+		/opt/pylon/include/GenApi/IBase.h \
+		/opt/pylon/include/GenApi/Reference.h \
+		/opt/pylon/include/GenApi/INode.h \
+		/opt/pylon/include/GenApi/Container.h \
+		/opt/pylon/include/GenApi/IFloat.h \
+		/opt/pylon/include/GenApi/IInteger.h \
+		/opt/pylon/include/GenApi/ICategory.h \
+		/opt/pylon/include/GenApi/IRegister.h \
+		/opt/pylon/include/GenApi/IBoolean.h \
+		/opt/pylon/include/GenApi/IPort.h \
+		/opt/pylon/include/GenApi/IPortRecorder.h \
+		/opt/pylon/include/GenApi/IPortConstruct.h \
+		/opt/pylon/include/GenApi/IChunkPort.h \
+		/opt/pylon/include/GenApi/IString.h \
+		/opt/pylon/include/GenApi/INodeMap.h \
+		/opt/pylon/include/GenApi/IDestroy.h \
+		/opt/pylon/include/GenApi/IDeviceInfo.h \
+		/opt/pylon/include/GenApi/ISelector.h \
+		/opt/pylon/include/GenApi/ICommand.h \
+		/opt/pylon/include/GenApi/IUserData.h \
+		/opt/pylon/include/GenApi/NodeMapRef.h \
+		/opt/pylon/include/GenApi/NodeMapFactory.h \
+		/opt/pylon/include/GenApi/GenApiVersion.h \
+		/opt/pylon/include/GenApi/NodeCallback.h \
+		/opt/pylon/include/GenApi/Persistence.h \
+		/opt/pylon/include/GenApi/StructPort.h \
+		/opt/pylon/include/GenApi/PortImpl.h \
+		/opt/pylon/include/GenApi/SelectorSet.h \
+		/opt/pylon/include/GenApi/ISelectorDigit.h \
+		/opt/pylon/include/GenApi/GenApiLinkage.h \
+		/opt/pylon/include/pylon/PylonVersionInfo.h \
+		/opt/pylon/include/pylon/Info.h \
+		/opt/pylon/include/pylon/TlInfo.h \
+		/opt/pylon/include/pylon/DeviceClass.h \
+		/opt/pylon/include/pylon/DeviceInfo.h \
+		/opt/pylon/include/pylon/Container.h \
+		/opt/pylon/include/pylon/InterfaceInfo.h \
+		/opt/pylon/include/pylon/DeviceFactory.h \
+		/opt/pylon/include/pylon/DeviceAccessMode.h \
+		/opt/pylon/include/pylon/PylonVersionNumber.h \
+		/opt/pylon/include/pylon/TransportLayer.h \
+		/opt/pylon/include/pylon/Interface.h \
+		/opt/pylon/include/pylon/TlFactory.h \
+		/opt/pylon/include/pylon/EventAdapter.h \
+		/opt/pylon/include/pylon/Callback.h \
+		/opt/pylon/include/pylon/Device.h \
+		/opt/pylon/include/pylon/WaitObject.h \
+		/opt/pylon/include/pylon/WaitObjects.h \
+		/opt/pylon/include/pylon/StreamGrabber.h \
+		/opt/pylon/include/pylon/PixelType.h \
+		/opt/pylon/include/pylon/Pixel.h \
+		/opt/pylon/include/pylon/PixelTypeMapper.h \
+		/opt/pylon/include/GenApi/IEnumerationT.h \
+		/opt/pylon/include/GenApi/Compatibility.h \
+		/opt/pylon/include/pylon/Result.h \
+		/opt/pylon/include/pylon/PayloadType.h \
+		/opt/pylon/include/pylon/ResultImage.h \
+		/opt/pylon/include/pylon/Image.h \
+		/opt/pylon/include/pylon/PylonDataComponent.h \
+		/opt/pylon/include/pylon/PylonDataContainer.h \
+		/opt/pylon/include/pylon/ChunkParser.h \
+		/opt/pylon/include/pylon/EventGrabber.h \
+		/opt/pylon/include/pylon/EventGrabberProxy.h \
+		/opt/pylon/include/pylon/NodeMapProxy.h \
+		/opt/pylon/include/pylon/AcquireSingleFrameConfiguration.h \
+		/opt/pylon/include/pylon/InstantCamera.h \
+		/opt/pylon/include/pylon/ImageEventHandler.h \
+		/opt/pylon/include/pylon/GrabResultPtr.h \
+		/opt/pylon/include/pylon/GrabResultData.h \
+		/opt/pylon/include/pylon/ConfigurationEventHandler.h \
+		/opt/pylon/include/pylon/CameraEventHandler.h \
+		/opt/pylon/include/pylon/BufferFactory.h \
+		/opt/pylon/include/pylon/SfncVersion.h \
+		/opt/pylon/include/pylon/_InstantCameraParams.h \
+		/opt/pylon/include/pylon/ParameterIncludes.h \
+		/opt/pylon/include/pylon/ArrayParameter.h \
+		/opt/pylon/include/pylon/Parameter.h \
+		/opt/pylon/include/pylon/BooleanParameter.h \
+		/opt/pylon/include/pylon/CommandParameter.h \
+		/opt/pylon/include/pylon/EnumParameter.h \
+		/opt/pylon/include/pylon/FloatParameter.h \
+		/opt/pylon/include/pylon/IntegerParameter.h \
+		/opt/pylon/include/pylon/StringParameter.h \
+		/opt/pylon/include/pylon/EnumParameterT.h \
+		/opt/pylon/include/pylon/ConfigurationHelper.h \
+		/opt/pylon/include/pylon/InstantCameraArray.h \
+		/opt/pylon/include/pylon/AcquireContinuousConfiguration.h \
+		/opt/pylon/include/pylon/SoftwareTriggerConfiguration.h \
+		/opt/pylon/include/pylon/InstantInterface.h \
+		/opt/pylon/include/pylon/_BaslerUniversalInterfaceParams.h \
+		/opt/pylon/include/pylon/PylonUtilityIncludes.h \
+		/opt/pylon/include/pylon/PylonUtility.h \
+		/opt/pylon/include/pylon/PylonImage.h \
+		/opt/pylon/include/pylon/PylonImageBase.h \
+		/opt/pylon/include/pylon/ReusableImage.h \
+		/opt/pylon/include/pylon/ImagePersistence.h \
+		/opt/pylon/include/pylon/PixelData.h \
+		/opt/pylon/include/pylon/PylonImageUserBufferEventHandler.h \
+		/opt/pylon/include/pylon/ImageDecompressor.h \
+		/opt/pylon/include/pylon/ImageFormatConverter.h \
+		/opt/pylon/include/pylon/_ImageFormatConverterParams.h \
+		/opt/pylon/include/pylon/FeaturePersistence.h \
+		/opt/pylon/include/pylon/VideoWriter.h \
+		/opt/pylon/include/pylon/_VideoWriterParams.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o kameraFunktioner.o ../KameraKalibrering/kameraFunktioner.cpp
 
 main.o: ../KameraKalibrering/main.cpp ../KameraKalibrering/mainwindow.h \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMainWindow \
@@ -3639,7 +3648,8 @@ nykalibrering.o: ../KameraKalibrering/nykalibrering.cpp ../KameraKalibrering/nyk
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/QMessageBox \
 		../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmessagebox.h \
 		../KameraKalibrering/dhparams.h \
-		../KameraKalibrering/kalibreringsFunktioner.h
+		../KameraKalibrering/kalibreringsFunktioner.h \
+		../KameraKalibrering/kameraFunktioner.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o nykalibrering.o ../KameraKalibrering/nykalibrering.cpp
 
 qrc_qmake_qmake_qm_files.o: qrc_qmake_qmake_qm_files.cpp 

@@ -15,7 +15,7 @@
 
 #include <ur_rtde/rtde.h>
 #include <ur_rtde/rtde_receive_interface.h>
-#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_control_interface.h><<<<<<< HEAD
 
 #include <pylon/PylonBase.h>
 #include <pylon/PylonIncludes.h>
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->robot_frame->setStyleSheet("background-color: rgb(255, 0, 0);");
         path = folder->selectedFiles().at(0);
     }
- /*   else
+    /*   else
     {
         QMessageBox msg;
         msg.setText("Ingen mappe valgt, lukker program");
@@ -146,7 +146,7 @@ void MainWindow::on_cameraButton_clicked()
 
             Mat charucoCopy;
             grayImage.copyTo(charucoCopy);
-                    //cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners2, charucoIds2, cv::Scalar(255,0,0));
+            //cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners2, charucoIds2, cv::Scalar(255,0,0));
 
             if (markerIds2.size() > 0)
             {
@@ -154,9 +154,9 @@ void MainWindow::on_cameraButton_clicked()
                 std::vector<cv::Point2f> charucoCorners;
                 std::vector<int> charucoIds;
                 cv::aruco::interpolateCornersCharuco(markerCorners2, markerIds2, grayImage, board, charucoCorners, charucoIds);
-                        // if at least one charuco corner detected
+                // if at least one charuco corner detected
                 if (charucoIds.size() > 0)
-                cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));
+                    cv::aruco::drawDetectedCornersCharuco(charucoCopy, charucoCorners, charucoIds, cv::Scalar(255, 0, 0));
             }
             namedWindow("charucoMarkers", 1);
             cv::imshow("charucoMarkers", charucoCopy);
@@ -165,9 +165,9 @@ void MainWindow::on_cameraButton_clicked()
 
         catch (const GenericException &e)
         {
-                    // Error handling
-                    cerr << "An exception occurred." << endl
-                        << e.GetDescription() << endl;
+            // Error handling
+            cerr << "An exception occurred." << endl
+                 << e.GetDescription() << endl;
         }
     }
     else
@@ -190,13 +190,21 @@ void MainWindow::on_robotButton_clicked()
         RTDEReceiveInterface rtde_receive(hostname);
 
         vector<double> joint_positions = rtde_receive.getActualQ();
+        vector<double> cartesian_positions = rtde_receive.getActualTCPPose();
         for (size_t i = 0; i < joint_positions.size(); i++)
         {
             qDebug() << joint_positions.at(i) << " ";
         }
-    /*joint_positions.at(0)=joint_positions.at(0)-0.5;
+        //joint_positions.at(0)=joint_positions.at(0)-0.5;
 
-    rtde_control.moveJ(joint_positions);*/
+        joint_positions.at(0) = 0.171629;
+        joint_positions.at(1) = -1.80515;
+        joint_positions.at(2) = -1.44173;
+        joint_positions.at(3) = -1.52207;
+        joint_positions.at(4) = 1.5658;
+        joint_positions.at(5) = -2.13749;
+
+        rtde_control.moveJ(joint_positions);
     }
     else
     {

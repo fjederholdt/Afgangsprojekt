@@ -1,0 +1,28 @@
+%YAML:1.0
+---
+calibrationDate: "Fri Jul 16 12:33:50 2021"
+cameraMatrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 3.4759664473601465e+03, 0., 7.2610586922662287e+02, 0.,
+       3.4736110398687788e+03, 5.9559004779949248e+02, 0., 0., 1. ]
+distCoeffs: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data: [ -2.1416602404670970e-01, -2.4128287993420803e+00,
+       4.1072276264527384e-04, 2.6467066448808549e-04,
+       3.7380294548004237e+01 ]
+camRotationMatrix: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ 2.7515257357323737e+00, -1.0219599810456399e-01,
+       -2.1504363033145804e-02 ]
+camTranslationMatrix: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ -1.2161128860807155e-01, 6.8569393994766553e-02,
+       9.0901798513277521e-01 ]

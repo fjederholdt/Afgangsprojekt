@@ -16,10 +16,13 @@
 #include <time.h>
 #include <stdio.h>
 #include <math.h>
+#include <Eigen/Dense>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/matx.hpp>
+#include <opencv2/aruco.hpp>
+#include <opencv2/core/eigen.hpp>
 
 
 #include <pcl/io/pcd_io.h>
@@ -29,12 +32,6 @@
 #include <pcl/point_types.h>
 #include <pcl/common/angles.h>
 //#include <pcl/features/normal_3d.h>
-
-#include <pylon/PylonBase.h>
-#include <pylon/PylonIncludes.h>
-#include <pylon/TlFactory.h>
-#include <pylon/ImageFormatConverter.h>
-#include <pylon/PylonImage.h>
 
 #include <ur_rtde/rtde.h>
 #include <ur_rtde/rtde_receive_interface.h>
